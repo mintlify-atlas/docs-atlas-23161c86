@@ -78,7 +78,6 @@ Verify installation:
 ```bash
 docker --version
 ```
-```
 
 <Note>
   **Component imports**: Use the `@/` alias to import from `src/`. All components must be React Server Components or explicitly marked `"use client"`.
@@ -391,17 +390,18 @@ import { motion } from 'framer-motion'
 - Scroll-triggered TOC highlights
 - Button hover states
 
-## Search Integration
+## Search & Navigation
 
-<Warning>
-  **Coming soon:** Full-text search is planned but not yet implemented. Currently, use browser find (Ctrl+F) or TOC navigation.
-</Warning>
+EasyGoDocs provides multiple ways to find content:
 
-**Future implementation:**
-- Client-side search index
-- Fuzzy matching
-- Keyboard shortcuts (`Ctrl+K`)
-- Search result highlighting
+- **Table of Contents (TOC):** Auto-generated navigation on the right sidebar (desktop)
+- **Sidebar Navigation:** Hierarchical documentation structure on the left
+- **Browser Find:** Use `Ctrl+F` / `Cmd+F` for quick text search within pages
+- **Direct URLs:** Clean, predictable URL structure (`/library/install-docker-ubuntu`)
+
+<Tip>
+  Use the TOC for quick navigation within long pages, and the sidebar to browse between documentation sections.
+</Tip>
 
 ## Build & Deployment
 
