@@ -1,0 +1,464 @@
+---
+title: 'TSX Templates'
+description: 'How React/TypeScript components render JSON documentation data into interactive, accessible pages'
+---
+
+## Overview
+
+EasyGoDocs separates content (JSON) from presentation (TSX). The `DocumentationPage` component in `src/components/documentation/documentation-component.tsx` is the core template that transforms JSON data into a fully interactive documentation experience.
+
+This architecture provides:
+- **Consistency**: All JSON docs render with the same UI/UX
+- **Maintainability**: Update the template once to change all docs
+- **Type Safety**: TypeScript interfaces ensure data integrity
+- **Interactivity**: Client-side features like scroll tracking and collapsible nav
+
+## The DocumentationPage Component
+
+The main template component receives JSON data and renders a three-column layout:
+
+```typescript
+interface DocumentationPageProps {
+  jsonData: DocData;
+}
+
+const DocumentationPage = ({ jsonData }: DocumentationPageProps) => {
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="flex">
+        {/* Left: Sidebar Navigation */}
+        <aside className="hidden lg:flex lg:flex-col lg:w-80">
+          <SidebarNav items={jsonData.sidebar} />
+        </aside>
+
+        {/* Center: Main Content */}
+        <main className="flex-1 lg:ml-80">
+          {jsonData.content.map((block, idx) =>
+            renderContentBlock(block, idx)
+          )}
+        </main>
+
+        {/* Right: Table of Contents */}
+        <aside className="hidden xl:block xl:w-80">
+          <TableOfContents items={jsonData.toc} />
+        </aside>
+      </div>
+    </div>
+  );
+};
+```
+
+<Note>
+The component is marked with `"use client"` at the top of the file to enable client-side interactivity like scroll tracking and navigation state.
+</Note>
+
+## Content Block Rendering
+
+The `renderContentBlock` function maps JSON content types to React components:
+
+```typescript
+const renderContentBlock = (block: ContentBlock, idx: number) => {
+  switch (block.type) {
+    case "heading": {
+      if (!block.id || !block.level) return null;
+      const tag = `h${block.level}`;
+      return React.createElement(
+        tag,
+        {
+          key: block.id,
+          id: block.id,
+          className:
+            block.level === 1
+              ? "text-4xl font-bold text-foreground mt-8 mb-4"
+              : block.level === 2
+              ? "text-2xl font-semibold text-foreground mt-6 mb-3"
+              : "text-xl font-semibold text-foreground mt-4 mb-2",
+        },
+        block.text
+      );
+    }
+    case "paragraph":
+      return (
+        <p key={idx} className="text-lg text-muted-foreground mb-4">
+          {block.text}
+        </p>
+      );
+    case "code":
+      return (
+        <CodeBlock key={idx} language={block.language} className="mb-4">
+          {block.code}
+        </CodeBlock>
+      );
+    case "image":
+      return (
+        <div key={idx} className="flex justify-center my-6">
+          <img
+            src={block.src}
+            alt={block.alt || "Documentation image"}
+            className="max-w-full rounded shadow"
+          />
+        </div>
+      );
+    default:
+      return null;
+  }
+};
+```
+
+**Key Features:**
+- Dynamic heading tags (`h1`-`h6`) based on `level` property
+- Conditional styling based on content type and level
+- Each heading includes an `id` attribute for anchor navigation
+- Graceful fallbacks for missing or malformed data
+
+<Tip>
+Headings use `React.createElement()` to dynamically generate the correct HTML tag (`h1`, `h2`, etc.) rather than hardcoding specific heading levels.
+</Tip>
+
+## Sidebar Navigation Component
+
+The `SidebarNav` component renders hierarchical navigation with collapsible sections:
+
+```typescript
+const SidebarNav = ({ items }: { items: NavItem[] }) => {
+  const [openItems, setOpenItems] = useState<string[]>([]);
+
+  const toggleItem = (title: string) => {
+    setOpenItems((prev) =>
+      prev.includes(title)
+        ? prev.filter((item) => item !== title)
+        : [...prev, title]
+    );
+  };
+
+  const renderNavItem = (item: NavItem, level = 0) => {
+    const hasChildren = item.children && item.children.length > 0;
+    const isOpen = openItems.includes(item.title);
+
+    return (
+      <div key={item.title} className="w-full">
+        <div
+          className={`flex items-center justify-between w-full px-2 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground cursor-pointer ${
+            level > 0 ? "ml-4" : ""
+          }`}
+          onClick={() => (hasChildren ? toggleItem(item.title) : undefined)}
+        >
+          <span className="text-foreground/80 hover:text-foreground">
+            {item.title}
+          </span>
+          {hasChildren &&
+            (isOpen ? (
+              <ChevronDown className="h-4 w-4" />
+            ) : (
+              <ChevronRight className="h-4 w-4" />
+            ))}
+        </div>
+        {hasChildren && isOpen && (
+          <div className="mt-1 space-y-1">
+            {item.children!.map((child) => renderNavItem(child, level + 1))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  return (
+    <nav className={className}>
+      <div className="space-y-1">
+        {items.map((item) => renderNavItem(item))}
+      </div>
+    </nav>
+  );
+};
+```
+
+**Features:**
+- Recursive rendering for nested navigation
+- Click to expand/collapse sections with children
+- Visual indicators (chevron icons) for expandable items
+- Indentation based on nesting level
+- Smooth hover states for better UX
+
+## Table of Contents Component
+
+The `TableOfContents` component provides scroll-synchronized navigation:
+
+```typescript
+const TableOfContents = ({ items }: { items: TocItem[] }) => {
+  const [activeId, setActiveId] = useState<string>("");
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveId(entry.target.id);
+          }
+        });
+      },
+      { rootMargin: "-20% 0% -35% 0%" }
+    );
+
+    items.forEach((item) => {
+      const element = document.getElementById(item.id);
+      if (element) observer.observe(element);
+    });
+
+    return () => observer.disconnect();
+  }, [items]);
+
+  const scrollToHeading = (id: string) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  return (
+    <div className="space-y-2">
+      <h4 className="text-sm font-semibold text-foreground">On This Page</h4>
+      <nav className="space-y-1">
+        {items.map((item) => (
+          <button
+            key={item.id}
+            onClick={() => scrollToHeading(item.id)}
+            className={`flex items-center w-full text-left text-sm py-1 px-2 rounded-md hover:bg-accent hover:text-accent-foreground transition-colors ${
+              activeId === item.id
+                ? "text-foreground bg-accent"
+                : "text-muted-foreground"
+            } ${item.level && item.level > 1 ? "ml-4" : ""}`}
+          >
+            <Hash className="h-3 w-3 mr-1 opacity-50" />
+            {item.title}
+          </button>
+        ))}
+      </nav>
+    </div>
+  );
+};
+```
+
+**Features:**
+- **IntersectionObserver**: Automatically highlights the currently visible section
+- **Smooth scrolling**: Click any TOC item to scroll to that section
+- **Visual feedback**: Active section is highlighted with accent colors
+- **Responsive indentation**: Nested headings are indented based on their level
+- **Cleanup**: Observer is properly disconnected on unmount
+
+<Note>
+The `rootMargin: "-20% 0% -35% 0%"` setting ensures sections are highlighted when they're roughly in the middle of the viewport, providing better visual feedback as users scroll.
+</Note>
+
+## Responsive Design
+
+The template includes mobile-friendly navigation:
+
+```typescript
+{/* Mobile Sidebar */}
+<Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
+  <SheetTrigger asChild>
+    <Button
+      variant="ghost"
+      size="icon"
+      className="fixed top-4 left-4 z-40 lg:hidden"
+    >
+      <Menu className="h-5 w-5" />
+    </Button>
+  </SheetTrigger>
+  <SheetContent side="left" className="w-80 p-0">
+    <div className="flex items-center justify-between p-4 border-b border-border">
+      <h2 className="text-lg font-semibold text-foreground">
+        Documentation
+      </h2>
+    </div>
+    <ScrollArea className="h-[calc(100vh-80px)] p-4">
+      <SidebarNav items={jsonData.sidebar} />
+    </ScrollArea>
+  </SheetContent>
+</Sheet>
+```
+
+**Breakpoints:**
+- **Mobile (< 1024px)**: Hamburger menu for sidebar, no TOC
+- **Desktop (≥ 1024px)**: Fixed left sidebar, no mobile menu
+- **Extra Large (≥ 1280px)**: Both sidebar and TOC visible
+
+## TypeScript Interfaces
+
+The component uses strict TypeScript interfaces for type safety:
+
+```typescript
+interface NavItem {
+  title: string;
+  href: string;
+  children?: NavItem[];
+}
+
+interface TocItem {
+  id: string;
+  title: string;
+  level: number;
+}
+
+interface ContentBlock {
+  type: string;
+  id?: string;
+  level?: number;
+  text?: string;
+  language?: string;
+  code?: string;
+  src?: string;
+  alt?: string;
+}
+
+interface Credits {
+  author: string;
+  contributors: string[];
+}
+
+interface DocData {
+  sidebar: NavItem[];
+  toc: TocItem[];
+  content: ContentBlock[];
+  credits?: Credits;
+}
+
+interface DocumentationPageProps {
+  jsonData: DocData;
+}
+```
+
+These interfaces ensure that:
+- JSON data structure matches expected format
+- Component props are correctly typed
+- TypeScript catches errors at compile time
+- IDE provides better autocomplete and refactoring
+
+## UI Components
+
+The template leverages shadcn/ui components:
+
+```typescript
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Separator } from "@/components/ui/separator";
+import { CodeBlock } from "@/components/ui/code-block";
+```
+
+**Benefits:**
+- Consistent design system across the app
+- Accessible components out of the box
+- Dark mode support via CSS variables
+- Easy customization via Tailwind classes
+
+## Credits Section
+
+The template renders optional credits at the bottom:
+
+```typescript
+{jsonData.credits && (
+  <div className="mt-12 text-sm text-muted-foreground">
+    <Separator className="my-4" />
+    <div>Author: {jsonData.credits.author}</div>
+    <div>
+      Contributors: {jsonData.credits.contributors.join(", ")}
+    </div>
+  </div>
+)}
+```
+
+<Tip>
+The credits section only renders if the `credits` object exists in the JSON data, using optional chaining and conditional rendering.
+</Tip>
+
+## Extending the Template
+
+To add a new content block type:
+
+1. **Update the TypeScript interface:**
+```typescript
+interface ContentBlock {
+  type: string;
+  // Add new fields for your block type
+  myNewField?: string;
+}
+```
+
+2. **Add a new case to renderContentBlock:**
+```typescript
+case "myNewType":
+  return (
+    <div key={idx} className="my-custom-class">
+      {block.myNewField}
+    </div>
+  );
+```
+
+3. **Use it in your JSON:**
+```json
+{
+  "type": "myNewType",
+  "myNewField": "Custom content"
+}
+```
+
+## Best Practices
+
+### Always Use Keys
+
+Provide stable keys for list items:
+
+```typescript
+// ✅ Good - unique ID as key
+{items.map((item) => (
+  <div key={item.id}>{item.title}</div>
+))}
+
+// ⚠️ Acceptable - index as fallback
+{content.map((block, idx) => renderContentBlock(block, idx))}
+
+// ❌ Bad - no key
+{items.map((item) => (
+  <div>{item.title}</div>
+))}
+```
+
+### Handle Missing Data
+
+Always check for required fields:
+
+```typescript
+// ✅ Good - early return for invalid data
+if (!block.id || !block.level) return null;
+
+// ✅ Good - default values
+alt={block.alt || "Documentation image"}
+
+// ❌ Bad - assuming data exists
+const tag = `h${block.level}`; // May be undefined
+```
+
+### Use Semantic HTML
+
+Ensure proper heading hierarchy:
+
+```typescript
+// ✅ Good - dynamic heading tags
+const tag = `h${block.level}`;
+React.createElement(tag, { id: block.id }, block.text)
+
+// ❌ Bad - all headings use same tag
+<h2 id={block.id}>{block.text}</h2>
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="JSON Structure" icon="brackets-curly" href="/concepts/json-structure">
+    Learn the complete JSON schema for documentation content
+  </Card>
+  <Card title="Navigation" icon="compass" href="/concepts/navigation">
+    Understand routing and how pages are discovered
+  </Card>
+</CardGroup>

@@ -1,0 +1,70 @@
+---
+title: Install Node.js and npm using apt
+description: Install Node.js and npm on Ubuntu using the apt package manager for server-side JavaScript development.
+---
+
+Node.js is a JavaScript runtime that allows you to run JavaScript on the server side. npm is the default package manager for Node.js.
+
+<Steps>
+  <Step title="Update package lists">
+    First, update your package lists to ensure you have the latest information:
+
+    ```bash
+    sudo apt update
+    ```
+  </Step>
+
+  <Step title="Install Node.js and npm">
+    Install Node.js and npm using the apt package manager:
+
+    ```bash
+    sudo apt install nodejs npm -y
+    ```
+
+    <Note>
+      This command installs both Node.js and npm together.
+    </Note>
+  </Step>
+
+  <Step title="Verify Node.js version">
+    Check that Node.js was installed successfully:
+
+    ```bash
+    node -v
+    ```
+
+    You should see output similar to `v18.17.0`.
+  </Step>
+
+  <Step title="Verify npm version">
+    Check that npm was installed successfully:
+
+    ```bash
+    npm -v
+    ```
+
+    You should see output similar to `9.6.7`.
+  </Step>
+</Steps>
+
+## Alternative: Install specific version
+
+If you need a specific version of Node.js, you can:
+
+1. Install NodeSource repository:
+```bash
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+```
+
+2. Install Node.js:
+```bash
+sudo apt-get install -y nodejs
+```
+
+## Next Steps
+
+Now that Node.js and npm are installed, you can:
+- Create new Node.js projects with `npm init`
+- Install packages with `npm install`
+- Run Node.js applications
+- Use npm scripts for automation

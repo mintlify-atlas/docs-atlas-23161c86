@@ -1,0 +1,283 @@
+---
+title: 'Getting Started with React'
+description: 'Learn how to build user interfaces with React, the popular JavaScript library for creating interactive web applications'
+---
+
+Welcome to the React documentation! This guide will help you understand the basics of React and how to get started building user interfaces.
+
+## What is React?
+
+React is a popular open-source JavaScript library for building user interfaces, especially single-page applications. It lets you compose complex UIs from small, isolated pieces of code called **components**.
+
+## Prerequisites
+
+Before you begin, make sure you have the following installed:
+
+- **Node.js and npm:** React applications are built using Node.js. You can download it from [nodejs.org](https://nodejs.org/).
+
+## Setup a React Project
+
+The easiest way to set up a new React project is by using a build tool like **Vite** or the official **Create React App**. Vite is often preferred for its speed and simplicity.
+
+<Tabs>
+  <Tab title="Vite">
+    <Steps>
+      <Step title="Create project">
+        Create a new React project with Vite:
+        ```bash
+        npm create vite@latest my-app -- --template react
+        ```
+      </Step>
+      
+      <Step title="Navigate to project">
+        Change into the project directory:
+        ```bash
+        cd my-app
+        ```
+      </Step>
+      
+      <Step title="Install dependencies">
+        Install the required packages:
+        ```bash
+        npm install
+        ```
+      </Step>
+      
+      <Step title="Start development server">
+        Run the development server:
+        ```bash
+        npm run dev
+        ```
+      </Step>
+    </Steps>
+  </Tab>
+  
+  <Tab title="Create React App">
+    <Steps>
+      <Step title="Create project">
+        Create a new React project with Create React App:
+        ```bash
+        npx create-react-app my-app
+        ```
+      </Step>
+      
+      <Step title="Navigate to project">
+        Change into the project directory:
+        ```bash
+        cd my-app
+        ```
+      </Step>
+      
+      <Step title="Start development server">
+        Run the development server:
+        ```bash
+        npm start
+        ```
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
+
+This will create a new directory called `my-app` with a basic React project structure and start a development server.
+
+## File Structure
+
+A typical React project has the following structure:
+
+```
+my-app/
+├── node_modules/
+├── public/
+│   ├── index.html
+│   └── ...
+├── src/
+│   ├── App.css
+│   ├── App.jsx
+│   ├── index.css
+│   ├── main.jsx
+│   └── ...
+├── .gitignore
+├── package.json
+└── README.md
+```
+
+- **public/**: Contains the main HTML file and other static assets.
+- **src/**: Contains the React components and application logic.
+
+## Core Concepts
+
+### Components and JSX
+
+Components are the building blocks of a React application. They are typically written as functional components that return JSX. JSX (JavaScript XML) is a syntax extension for JavaScript that allows you to write HTML-like code within your JavaScript files.
+
+```jsx
+import React from 'react';
+
+// A simple functional component
+function Welcome(props) {
+  return <h1>Hello, {props.name}</h1>;
+}
+
+// Another component using the Welcome component
+function App() {
+  return <Welcome name="John" />;
+}
+
+export default App;
+```
+
+### Props
+
+Props (short for "properties") are used to pass data from a parent component to a child component, similar to function arguments.
+
+```jsx
+// Parent Component
+import React from 'react';
+import Welcome from './Welcome';
+
+function App() {
+  return <Welcome name="John" />;
+}
+
+export default App;
+```
+
+### State and Hooks
+
+State is used to manage data that can change over time within a component. Hooks are functions that let you use state and other React features in functional components. The most common Hooks are `useState` and `useEffect`.
+
+#### useState
+
+For managing state. It returns an array with the current state value and a function to update it.
+
+```jsx
+import React, { useState } from 'react';
+
+function Counter() {
+  const [count, setCount] = useState(0);
+
+  return (
+    <div>
+      <p>You clicked {count} times</p>
+      <button onClick={() => setCount(count + 1)}>
+        Click me
+      </button>
+    </div>
+  );
+}
+
+export default Counter;
+```
+
+#### useEffect
+
+For handling side effects (e.g., data fetching, subscriptions, manual DOM manipulation). It runs after every render, by default.
+
+```jsx
+import React, { useState, useEffect } from 'react';
+
+function UserProfile({ userId }) {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    // This function will run whenever `userId` changes
+    fetch(`https://api.example.com/users/${userId}`)
+      .then(response => response.json())
+      .then(data => setUser(data));
+  }, [userId]); // The dependency array ensures the effect only re-runs when `userId` changes
+
+  if (!user) {
+    return <div>Loading...</div>;
+  }
+
+  return <h1>Hello, {user.name}</h1>;
+}
+```
+
+## Styling in React
+
+There are several ways to style React components:
+
+- **CSS Stylesheets**: The simplest way is to import a CSS file into your component.
+- **Inline Styles**: Apply styles directly to an element using a JavaScript object.
+- **CSS-in-JS Libraries**: Use libraries like styled-components or Emotion for a more component-based approach to styling.
+
+## React Router
+
+React Router is the standard library for handling navigation in a React application. The latest version (v6) provides a simpler, more powerful way to define routes.
+
+<Steps>
+  <Step title="Install React Router">
+    <Tabs>
+      <Tab title="npm">
+        ```bash
+        npm install react-router-dom
+        ```
+      </Tab>
+      <Tab title="yarn">
+        ```bash
+        yarn add react-router-dom
+        ```
+      </Tab>
+      <Tab title="pnpm">
+        ```bash
+        pnpm add react-router-dom
+        ```
+      </Tab>
+    </Tabs>
+  </Step>
+  
+  <Step title="Configure router in main file">
+    ```jsx
+    // src/main.jsx (or index.js)
+    import React from 'react';
+    import ReactDOM from 'react-dom/client';
+    import { BrowserRouter } from 'react-router-dom';
+    import App from './App';
+
+    ReactDOM.createRoot(document.getElementById('root')).render(
+      <React.StrictMode>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </React.StrictMode>
+    );
+    ```
+  </Step>
+  
+  <Step title="Define routes in App component">
+    ```jsx
+    // src/App.jsx
+    import { Routes, Route, Link } from 'react-router-dom';
+    import Home from './Home';
+    import About from './About';
+
+    function App() {
+      return (
+        <div>
+          <nav>
+            <Link to="/">Home</Link> | <Link to="/about">About</Link>
+          </nav>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+          </Routes>
+        </div>
+      );
+    }
+
+    export default App;
+    ```
+  </Step>
+</Steps>
+
+## Additional Resources
+
+- [Official React Docs](https://react.dev/)
+- [React Tutorial](https://react.dev/learn)
+- [React GitHub](https://github.com/facebook/react)
+
+<Note>
+  **Author**: EasyGoDocs Team  
+  **Contributors**: Anup Kumar
+</Note>

@@ -1,0 +1,164 @@
+---
+title: Docker Guide
+description: Complete guide to using Docker for containerized application development
+---
+
+Docker is a platform for developing, shipping, and running applications in containers. It allows you to package applications with their dependencies into standardized units for software development.
+
+## Why Use Docker?
+
+Docker provides several key benefits for development and deployment:
+
+- **Consistency**: Applications run the same way across different environments
+- **Isolation**: Each container runs independently with its own dependencies
+- **Portability**: Containers can run on any system that supports Docker
+- **Efficiency**: Containers share the host OS kernel, making them lightweight
+- **Scalability**: Easily scale applications by running multiple containers
+
+## Getting Started with Docker
+
+To start using Docker on Ubuntu, you'll need to install both Docker Engine and Docker Compose for managing multi-container applications.
+
+<CardGroup cols={2}>
+  <Card
+    title="Install Docker on Ubuntu"
+    icon="docker"
+    href="/library/install-docker-ubuntu"
+  >
+    Set up Docker Engine on Ubuntu using apt package manager or official Docker repository
+  </Card>
+  <Card
+    title="Install Docker Compose"
+    icon="layer-group"
+    href="/library/install-docker-compose"
+  >
+    Install Docker Compose to define and run multi-container Docker applications
+  </Card>
+</CardGroup>
+
+## Common Docker Workflows
+
+### Running Your First Container
+
+After installing Docker, test it with a simple container:
+
+```bash
+docker run hello-world
+```
+
+This downloads and runs a test image that verifies your Docker installation is working correctly.
+
+### Working with Docker Images
+
+Docker images are templates used to create containers. Here are some common operations:
+
+```bash
+# Pull an image from Docker Hub
+docker pull nginx:alpine
+
+# List downloaded images
+docker images
+
+# Remove an image
+docker rmi nginx:alpine
+```
+
+### Managing Containers
+
+Containers are running instances of Docker images:
+
+```bash
+# Run a container
+docker run -d -p 80:80 nginx:alpine
+
+# List running containers
+docker ps
+
+# Stop a container
+docker stop <container_id>
+
+# Remove a container
+docker rm <container_id>
+```
+
+### Using Docker Compose
+
+Docker Compose simplifies managing multi-container applications with a YAML configuration file:
+
+```yaml
+version: '3.8'
+services:
+  web:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_PASSWORD: example
+```
+
+Manage your application stack with simple commands:
+
+```bash
+# Start services
+docker-compose up -d
+
+# View logs
+docker-compose logs
+
+# Stop services
+docker-compose down
+```
+
+## Best Practices
+
+### Security
+
+- Don't run containers as root when possible
+- Use official images from trusted sources
+- Keep images updated with security patches
+- Scan images for vulnerabilities
+
+### Performance
+
+- Use multi-stage builds to reduce image size
+- Minimize the number of layers in your Dockerfile
+- Use `.dockerignore` to exclude unnecessary files
+- Clean up unused images and containers regularly
+
+### Development
+
+- Use volumes for persistent data
+- Leverage build cache for faster builds
+- Use environment variables for configuration
+- Tag images with meaningful version numbers
+
+## Next Steps
+
+Once you have Docker installed, you can:
+
+- Build custom Docker images with Dockerfiles
+- Deploy applications using Docker Compose
+- Explore container orchestration with Kubernetes
+- Integrate Docker into your CI/CD pipeline
+- Use Docker for local development environments
+
+## Related Resources
+
+<CardGroup cols={2}>
+  <Card
+    title="Git Guide"
+    icon="git"
+    href="/guides/git"
+  >
+    Learn version control workflows for managing your Dockerfiles and configurations
+  </Card>
+  <Card
+    title="Node.js Guide"
+    icon="node"
+    href="/guides/nodejs"
+  >
+    Containerize Node.js applications with Docker
+  </Card>
+</CardGroup>

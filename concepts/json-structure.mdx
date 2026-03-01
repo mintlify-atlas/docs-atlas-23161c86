@@ -1,0 +1,366 @@
+---
+title: 'JSON Structure'
+description: 'Understanding the JSON schema that defines documentation content, structure, and metadata in EasyGoDocs'
+---
+
+## Overview
+
+EasyGoDocs uses a structured JSON format to define documentation pages. Each JSON file in `src/db/` represents a complete documentation page with its content, navigation structure, table of contents, and metadata.
+
+This approach separates content from presentation, making it easy to manage documentation programmatically and render it consistently across different views.
+
+## JSON Schema
+
+A documentation JSON file consists of five main sections:
+
+### 1. Document Metadata
+
+Basic information about the documentation:
+
+```json
+{
+  "id": "react",
+  "title": "React",
+  "description": "A beginner-friendly introduction and guide to React, the popular JavaScript library for building user interfaces."
+}
+```
+
+**Fields:**
+- `id` (string, required): Unique identifier used in URL routing (`/docs/{id}`)
+- `title` (string, required): Display title for the documentation page
+- `description` (string, optional): Brief description for SEO and page headers
+
+### 2. Sidebar Navigation
+
+Defines the left sidebar navigation structure:
+
+```json
+{
+  "sidebar": [
+    {
+      "title": "React Guide",
+      "href": "#react-guide",
+      "children": [
+        { "title": "What is React?", "href": "#what-is-react" },
+        { "title": "Getting Started", "href": "#getting-started" },
+        { "title": "Core Concepts", "href": "#core-concepts" }
+      ]
+    },
+    {
+      "title": "More Help",
+      "href": "#more-help",
+      "children": [
+        { "title": "Resources", "href": "#resources" }
+      ]
+    }
+  ]
+}
+```
+
+**Structure:**
+- Each item has `title`, `href`, and optional `children` array
+- `href` links to section IDs in the content (using `#` anchors)
+- Supports nested navigation with unlimited depth
+- Children are collapsible/expandable in the UI
+
+### 3. Table of Contents
+
+Defines the right-side table of contents:
+
+```json
+{
+  "toc": [
+    { "id": "react-guide", "title": "React Guide", "level": 1 },
+    { "id": "what-is-react", "title": "What is React?", "level": 2 },
+    { "id": "getting-started", "title": "Getting Started", "level": 2 },
+    { "id": "core-concepts", "title": "Core Concepts", "level": 2 }
+  ]
+}
+```
+
+**Structure:**
+- `id` (string): Must match the content block's `id` for scroll tracking
+- `title` (string): Display text in the TOC
+- `level` (number): Heading level (1-6) for indentation and styling
+
+<Note>
+The TOC uses IntersectionObserver to automatically highlight the current section as users scroll through the page.
+</Note>
+
+### 4. Content Blocks
+
+The actual documentation content as an array of typed blocks:
+
+```json
+{
+  "content": [
+    {
+      "type": "heading",
+      "id": "react-guide",
+      "level": 1,
+      "text": "React Guide"
+    },
+    {
+      "type": "paragraph",
+      "text": "Welcome to the React documentation! This guide will help you understand the basics of React."
+    },
+    {
+      "type": "list",
+      "items": [
+        "Install Node.js and npm",
+        "Create a new React app using Create React App: npx create-react-app my-app",
+        "Navigate to your app folder: cd my-app",
+        "Start the development server: npm start"
+      ]
+    },
+    {
+      "type": "code",
+      "language": "jsx",
+      "code": "function App() {\n  return <h1>Hello World</h1>;\n}"
+    },
+    {
+      "type": "image",
+      "src": "/images/diagram.png",
+      "alt": "Architecture diagram"
+    }
+  ]
+}
+```
+
+**Supported Block Types:**
+
+#### Heading
+```json
+{
+  "type": "heading",
+  "id": "unique-id",
+  "level": 1,
+  "text": "Section Title"
+}
+```
+- `level`: 1-6 (h1-h6)
+- `id`: Required for anchor links and TOC tracking
+
+#### Paragraph
+```json
+{
+  "type": "paragraph",
+  "text": "Your paragraph content here."
+}
+```
+
+#### List
+```json
+{
+  "type": "list",
+  "items": ["Item 1", "Item 2", "Item 3"]
+}
+```
+
+<Tip>
+Currently only unordered lists are supported. Each item is rendered as plain text.
+</Tip>
+
+#### Code Block
+```json
+{
+  "type": "code",
+  "language": "javascript",
+  "code": "const greeting = 'Hello World';"
+}
+```
+- `language`: Used for syntax highlighting
+- `code`: Raw code string (use `\n` for line breaks)
+
+#### Image
+```json
+{
+  "type": "image",
+  "src": "/images/example.png",
+  "alt": "Description of image"
+}
+```
+
+### 5. Credits (Optional)
+
+Author and contributor information:
+
+```json
+{
+  "credits": {
+    "author": "EasyGoDocs Team",
+    "contributors": ["Jane Doe", "John Smith"]
+  }
+}
+```
+
+Displayed at the bottom of the documentation page after a separator.
+
+## Complete Example
+
+Here's the complete structure from `src/db/react.json`:
+
+```json
+{
+  "id": "react",
+  "title": "React",
+  "description": "A beginner-friendly introduction and guide to React, the popular JavaScript library for building user interfaces.",
+  "sidebar": [
+    {
+      "title": "React Guide",
+      "href": "#react-guide",
+      "children": [
+        { "title": "What is React?", "href": "#what-is-react" },
+        { "title": "Getting Started", "href": "#getting-started" },
+        { "title": "Core Concepts", "href": "#core-concepts" },
+        { "title": "Best Practices", "href": "#best-practices" }
+      ]
+    },
+    {
+      "title": "More Help",
+      "href": "#more-help",
+      "children": [
+        { "title": "Resources", "href": "#resources" }
+      ]
+    }
+  ],
+  "toc": [
+    { "id": "react-guide", "title": "React Guide", "level": 1 },
+    { "id": "what-is-react", "title": "What is React?", "level": 2 },
+    { "id": "getting-started", "title": "Getting Started", "level": 2 },
+    { "id": "core-concepts", "title": "Core Concepts", "level": 2 },
+    { "id": "best-practices", "title": "Best Practices", "level": 2 },
+    { "id": "more-help", "title": "More Help", "level": 1 },
+    { "id": "resources", "title": "Resources", "level": 2 }
+  ],
+  "content": [
+    {
+      "type": "heading",
+      "id": "react-guide",
+      "level": 1,
+      "text": "React Guide"
+    },
+    {
+      "type": "paragraph",
+      "text": "Welcome to the React documentation! This guide will help you understand the basics of React and how to get started building user interfaces."
+    },
+    {
+      "type": "heading",
+      "id": "what-is-react",
+      "level": 2,
+      "text": "What is React?"
+    },
+    {
+      "type": "paragraph",
+      "text": "React is a popular open-source JavaScript library for building user interfaces, especially single-page applications. It lets you compose complex UIs from small, isolated pieces of code called 'components'."
+    }
+  ],
+  "credits": {
+    "author": "EasyGoDocs Team",
+    "contributors": ["Jane Doe", "John Smith"]
+  }
+}
+```
+
+## Best Practices
+
+### Keep IDs Consistent
+
+Ensure that heading IDs in `content` match the IDs in `toc` and `href` values in `sidebar`:
+
+```json
+// ✅ Good - IDs match across all sections
+"toc": [{ "id": "getting-started", ... }],
+"sidebar": [{ "href": "#getting-started", ... }],
+"content": [{ "id": "getting-started", ... }]
+
+// ❌ Bad - Mismatched IDs
+"toc": [{ "id": "getting-started", ... }],
+"content": [{ "id": "start", ... }]
+```
+
+### Use Descriptive IDs
+
+Use kebab-case and descriptive names:
+
+```json
+// ✅ Good
+"id": "core-concepts"
+"id": "advanced-patterns"
+"id": "troubleshooting-guide"
+
+// ❌ Bad
+"id": "section1"
+"id": "part_a"
+"id": "stuff"
+```
+
+### Structure Your Content
+
+Organize content hierarchically with clear heading levels:
+
+```json
+[
+  { "type": "heading", "level": 1, "text": "Main Topic" },
+  { "type": "paragraph", "text": "Introduction..." },
+  { "type": "heading", "level": 2, "text": "Subtopic" },
+  { "type": "paragraph", "text": "Details..." },
+  { "type": "heading", "level": 3, "text": "Sub-subtopic" }
+]
+```
+
+<Warning>
+Avoid skipping heading levels (e.g., going from h1 directly to h3) as this can affect accessibility and navigation.
+</Warning>
+
+## TypeScript Interfaces
+
+The JSON structure maps to these TypeScript interfaces in `src/components/documentation/documentation-component.tsx`:
+
+```typescript
+interface NavItem {
+  title: string;
+  href: string;
+  children?: NavItem[];
+}
+
+interface TocItem {
+  id: string;
+  title: string;
+  level: number;
+}
+
+interface ContentBlock {
+  type: string;
+  id?: string;
+  level?: number;
+  text?: string;
+  language?: string;
+  code?: string;
+  src?: string;
+  alt?: string;
+}
+
+interface Credits {
+  author: string;
+  contributors: string[];
+}
+
+interface DocData {
+  sidebar: NavItem[];
+  toc: TocItem[];
+  content: ContentBlock[];
+  credits?: Credits;
+}
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="TSX Templates" icon="code" href="/concepts/tsx-templates">
+    Learn how TSX templates render JSON data into interactive documentation
+  </Card>
+  <Card title="Navigation" icon="compass" href="/concepts/navigation">
+    Understand how navigation, routing, and content discovery works
+  </Card>
+</CardGroup>

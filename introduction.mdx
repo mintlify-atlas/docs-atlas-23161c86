@@ -1,0 +1,209 @@
+---
+title: Welcome to EasyGoDocs
+description: Documentation made easy. Write in Markdown, share with the world. Built for developers who value simplicity.
+---
+
+<div className="text-center space-y-6 py-12">
+  <div className="inline-flex items-center justify-center border-2 shadow-lg rounded-full p-4 bg-gradient-to-br from-primary/10 to-primary/5">
+    <svg className="w-16 h-16 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+    </svg>
+  </div>
+  
+  <h1 className="text-5xl md:text-7xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">
+    Documentation Made Easy
+  </h1>
+  
+  <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto">
+    Write docs in Markdown. Get a beautiful, searchable documentation site instantly. 
+    No complex configuration, no build headaches—just pure documentation.
+  </p>
+</div>
+
+## What is EasyGoDocs?
+
+EasyGoDocs is a modern documentation platform built with Next.js that simplifies technical documentation. Whether you're documenting APIs, creating tutorials, or building knowledge bases, EasyGoDocs lets you focus on writing while it handles the presentation.
+
+**The Philosophy:** Documentation shouldn't be harder than the code itself. Write in Markdown (or MDX), push your changes, and you're done.
+
+<CardGroup cols={2}>
+  <Card title="Zero Configuration" icon="magic-wand">
+    Drop your `.mdx` files in `src/docs/` and they're instantly live at `/mdx/your-file`. No routing config needed.
+  </Card>
+  
+  <Card title="Hot Reload" icon="bolt">
+    See your changes instantly during development. Edit, save, and watch your docs update in real-time.
+  </Card>
+  
+  <Card title="Beautiful by Default" icon="sparkles">
+    Responsive design, dark mode, syntax highlighting, and animated components out of the box.
+  </Card>
+  
+  <Card title="Community Driven" icon="users">
+    Part of GSSoC'25. Open source, built by the community, for the community.
+  </Card>
+</CardGroup>
+
+## Two Ways to Document
+
+EasyGoDocs supports two documentation approaches:
+
+### 1. Simple MDX (Recommended)
+
+```bash
+# Create a file
+echo "# My Documentation\n\nContent here..." > src/docs/my-topic.mdx
+
+# That's it! Available at /mdx/my-topic
+```
+
+Perfect for:
+- Quick tutorials
+- Installation guides
+- Getting started docs
+- Community contributions
+
+### 2. JSON + TSX Template
+
+For advanced use cases, define your documentation structure in JSON:
+
+```json
+// src/db/my-doc.json
+{
+  "id": "my-doc",
+  "title": "My Documentation",
+  "sidebar": [...],
+  "toc": [...],
+  "content": [...]
+}
+```
+
+The platform renders it using a React component (`src/components/documentation/documentation-component.tsx:207`) with:
+- Collapsible sidebar navigation
+- Auto-generated table of contents
+- Smooth scrolling and active heading tracking
+- Mobile-responsive drawer
+
+<Note>
+  **Build-time optimization:** Run `npm run generate-db-index` to create a static index of all JSON docs for serverless deployments.
+</Note>
+
+## Key Features
+
+<Steps>
+  <Step title="Automatic Table of Contents">
+    Headings are automatically extracted from your Markdown and displayed in a sticky sidebar. The active section highlights as you scroll.
+  </Step>
+  
+  <Step title="Syntax Highlighting">
+    Code blocks use `prism-react-renderer` for beautiful, themeable syntax highlighting across 100+ languages.
+    
+    ```typescript
+    // Automatically highlighted!
+    const Component = () => {
+      return <div>Hello World</div>
+    }
+    ```
+  </Step>
+  
+  <Step title="MDX Support">
+    Embed React components directly in your documentation:
+    
+    ```mdx
+    import { MyComponent } from './components'
+    
+    # My Doc
+    
+    <MyComponent interactive />
+    ```
+  </Step>
+  
+  <Step title="Responsive Design">
+    Mobile-first design with adaptive layouts. Sidebar becomes a drawer on mobile, TOC adapts to screen size.
+  </Step>
+</Steps>
+
+## Tech Stack
+
+<CardGroup cols={3}>
+  <Card title="Next.js 15" icon="react">
+    Latest App Router with React Server Components and streaming
+  </Card>
+  
+  <Card title="TypeScript" icon="code">
+    Fully typed for better DX and fewer bugs
+  </Card>
+  
+  <Card title="Tailwind CSS" icon="palette">
+    Utility-first styling with custom design tokens
+  </Card>
+  
+  <Card title="MDX" icon="markdown">
+    Markdown + JSX for interactive documentation
+  </Card>
+  
+  <Card title="Radix UI" icon="component">
+    Accessible, unstyled component primitives
+  </Card>
+  
+  <Card title="Framer Motion" icon="animation">
+    Smooth animations and transitions
+  </Card>
+</CardGroup>
+
+## Who Is This For?
+
+- **Open Source Projects**: Beautiful docs for your GitHub repos
+- **Developer Tools**: API documentation and SDK guides  
+- **Technical Writers**: Focus on content, not infrastructure
+- **Learning Platforms**: Tutorials, courses, and educational content
+- **Internal Teams**: Company wikis and knowledge bases
+
+<Warning>
+  EasyGoDocs is actively developed as part of GSSoC'25. Features and APIs may change. Pin your version for production use.
+</Warning>
+
+## Quick Navigation
+
+<CardGroup cols={3}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Get your first documentation page live in 5 minutes
+  </Card>
+  
+  <Card title="Features" icon="stars" href="/features">
+    Explore all capabilities and customization options
+  </Card>
+  
+  <Card title="Contribute" icon="git-branch" href="/contributing/guide">
+    Join the community and help improve EasyGoDocs
+  </Card>
+</CardGroup>
+
+## Community & Support
+
+EasyGoDocs is a proud participant in **GSSoC'25** (GirlScript Summer of Code). Contributions earn points toward the leaderboard!
+
+- **GitHub**: [EasyGoDocs/easygodocs](https://github.com/EasyGoDocs/easygodocs)
+- **Contribution Guide**: See `CONTRIBUTING.md` for workflow and point system
+- **Code of Conduct**: We maintain a respectful, inclusive environment
+- **Maintainer**: Connect with [Oindil Golder on LinkedIn](https://www.linkedin.com/in/oindil-golder/)
+
+<Note>
+  **First time contributing?** We're beginner-friendly! Check out our issues labeled `good-first-issue` to get started.
+</Note>
+
+---
+
+<div className="text-center py-8">
+  <p className="text-lg text-muted-foreground">
+    Ready to create amazing documentation?
+  </p>
+  <div className="flex gap-4 justify-center mt-4">
+    <a href="/quickstart" className="inline-flex items-center justify-center rounded-md bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary/90 transition-colors">
+      Get Started →
+    </a>
+    <a href="https://github.com/EasyGoDocs/easygodocs" className="inline-flex items-center justify-center rounded-md border border-input bg-background px-6 py-3 text-sm font-semibold shadow-sm hover:bg-accent hover:text-accent-foreground transition-colors">
+      View on GitHub
+    </a>
+  </div>
+</div>

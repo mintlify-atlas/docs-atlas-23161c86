@@ -1,0 +1,406 @@
+---
+title: System Tools Guide
+description: Essential system utilities for monitoring, managing, and optimizing your Ubuntu development environment
+---
+
+System tools are essential utilities that help you monitor, manage, and optimize your Ubuntu development environment. These tools provide insights into system performance, resource usage, and help you troubleshoot issues efficiently.
+
+## Why Use System Tools?
+
+System utilities enhance your development workflow by providing:
+
+- **Performance Monitoring**: Track CPU, memory, and disk usage in real-time
+- **Resource Management**: Identify and manage resource-intensive processes
+- **Productivity**: Enhanced terminal capabilities and workflow optimization
+- **Troubleshooting**: Diagnose and resolve system issues quickly
+- **Disk Management**: Monitor and optimize storage usage
+
+## Process and Resource Monitoring
+
+Monitor your system's performance and resource usage with these essential tools.
+
+<CardGroup cols={2}>
+  <Card
+    title="Install htop"
+    icon="chart-line"
+    href="/library/install-htop"
+  >
+    Interactive process viewer with real-time CPU, memory, and process monitoring
+  </Card>
+  <Card
+    title="Check Disk Space"
+    icon="hard-drive"
+    href="/library/check-disk-space"
+  >
+    Monitor disk usage and identify storage-consuming directories
+  </Card>
+  <Card
+    title="Install ncdu"
+    icon="folder-tree"
+    href="/library/install-ncdu"
+  >
+    Interactive disk usage analyzer for exploring storage usage
+  </Card>
+  <Card
+    title="Kill Process on Port"
+    icon="stop"
+    href="/library/kill-process-port"
+  >
+    Terminate processes using specific ports for development
+  </Card>
+</CardGroup>
+
+## Terminal Enhancement Tools
+
+Improve your terminal experience with powerful shells and multiplexers.
+
+<CardGroup cols={2}>
+  <Card
+    title="Install Zsh"
+    icon="terminal"
+    href="/library/install-zsh"
+  >
+    Extended shell with improved features, completion, and theming
+  </Card>
+  <Card
+    title="Install Oh My Zsh"
+    icon="wand-magic-sparkles"
+    href="/library/install-oh-my-zsh"
+  >
+    Framework for managing Zsh configuration with themes and plugins
+  </Card>
+  <Card
+    title="Install tmux"
+    icon="grid"
+    href="/library/install-tmux"
+  >
+    Terminal multiplexer for managing multiple sessions in one window
+  </Card>
+</CardGroup>
+
+## System Monitoring with htop
+
+htop provides an interactive, real-time view of your system's processes and resource usage.
+
+### Key Features
+
+- **Real-time Monitoring**: Live CPU, memory, and swap usage
+- **Process Management**: Kill, prioritize, and filter processes
+- **Interactive Interface**: Mouse and keyboard support
+- **Color-coded Display**: Easy-to-read visual indicators
+- **Tree View**: See process hierarchies and relationships
+
+### Common Use Cases
+
+```bash
+# Launch htop
+htop
+
+# Navigate with:
+# - Arrow keys to scroll
+# - F9 to kill processes
+# - F6 to sort by column
+# - F5 for tree view
+# - q to quit
+```
+
+## Disk Management
+
+### Checking Disk Space
+
+Monitor available storage to prevent disk full issues:
+
+```bash
+# View disk usage summary
+df -h
+
+# Check specific directory size
+du -sh /home/username
+
+# Find largest directories
+du -ahx / | sort -rh | head -n 10
+```
+
+### Using ncdu for Disk Analysis
+
+ncdu provides an interactive way to explore disk usage:
+
+```bash
+# Analyze current directory
+ncdu .
+
+# Analyze home directory
+ncdu ~
+
+# Analyze entire system
+sudo ncdu /
+```
+
+**Navigation:**
+- Use arrow keys to browse directories
+- Press Enter to enter a directory
+- Press 'd' to delete files/directories
+- Press 'q' to quit
+
+## Terminal Multiplexing with tmux
+
+tmux allows you to run multiple terminal sessions within a single window and keep processes running after disconnecting.
+
+### Essential tmux Commands
+
+```bash
+# Start new session
+tmux
+
+# Start named session
+tmux new-session -s development
+
+# List sessions
+tmux list-sessions
+
+# Attach to session
+tmux attach-session -t development
+
+# Detach from session (keeps running)
+Ctrl+b then d
+```
+
+### Window and Pane Management
+
+```bash
+# Create new window
+Ctrl+b then c
+
+# Switch between windows
+Ctrl+b then 0-9
+
+# Split pane horizontally
+Ctrl+b then "
+
+# Split pane vertically
+Ctrl+b then %
+
+# Navigate between panes
+Ctrl+b then arrow keys
+```
+
+### Use Cases
+
+- Run long-running processes that persist after logout
+- Organize development environment into multiple panes
+- Work on multiple projects simultaneously
+- Maintain SSH sessions that survive disconnections
+
+## Enhanced Shell with Zsh and Oh My Zsh
+
+Zsh provides an improved shell experience with better completion, history, and customization.
+
+### Zsh Features
+
+- **Smart Auto-completion**: Context-aware tab completion
+- **Spell Correction**: Automatic command correction suggestions
+- **Shared History**: Command history across all sessions
+- **Advanced Globbing**: Powerful file pattern matching
+- **Theming Support**: Customizable prompts and colors
+
+### Oh My Zsh Benefits
+
+Oh My Zsh extends Zsh with:
+
+- **200+ Plugins**: Git, Docker, Node.js, and more
+- **140+ Themes**: Customize your prompt appearance
+- **Auto-update**: Keep your configuration current
+- **Community**: Large ecosystem of extensions
+
+### Popular Oh My Zsh Plugins
+
+Enable plugins in `~/.zshrc`:
+
+```bash
+plugins=(
+  git              # Git aliases and completion
+  docker           # Docker completion
+  node             # Node.js aliases
+  npm              # npm completion
+  sudo             # Prefix last command with sudo
+  zsh-autosuggestions  # Command suggestions
+  zsh-syntax-highlighting  # Syntax highlighting
+)
+```
+
+## Process Management
+
+### Finding and Killing Processes
+
+Manage processes occupying specific ports:
+
+```bash
+# Find process on port 3000
+sudo lsof -t -i:3000
+
+# Kill process on port 3000
+sudo kill -9 $(sudo lsof -t -i:3000)
+
+# Alternative using fuser
+sudo fuser -k 3000/tcp
+```
+
+### Common Port Conflicts
+
+- **3000**: React development server
+- **8080**: Common web server
+- **5000**: Flask development server
+- **8000**: Django development server
+- **5432**: PostgreSQL database
+- **3306**: MySQL database
+- **27017**: MongoDB database
+
+## System Maintenance
+
+### Regular Maintenance Tasks
+
+```bash
+# Update package lists
+sudo apt update
+
+# Upgrade installed packages
+sudo apt upgrade
+
+# Remove unused packages
+sudo apt autoremove
+
+# Clean package cache
+sudo apt clean
+
+# Check disk space
+df -h
+
+# Monitor system resources
+htop
+```
+
+### Automated Cleanup
+
+```bash
+# Remove old journal logs (keep 7 days)
+sudo journalctl --vacuum-time=7d
+
+# Clean thumbnail cache
+rm -rf ~/.cache/thumbnails/*
+
+# Remove old kernels (keep current)
+sudo apt autoremove --purge
+```
+
+## Performance Optimization Tips
+
+### Memory Management
+
+- Monitor memory usage with htop
+- Identify memory-intensive processes
+- Close unnecessary applications
+- Use swap space judiciously
+
+### Disk Optimization
+
+- Regularly check disk usage with ncdu
+- Remove old log files and caches
+- Use compression for large files
+- Archive or delete unused projects
+
+### Process Optimization
+
+- Kill zombie processes
+- Limit background processes
+- Use nice/renice for process priorities
+- Monitor CPU usage patterns
+
+## Troubleshooting Common Issues
+
+### High CPU Usage
+
+1. Launch htop to identify the process
+2. Press F6 and sort by CPU%
+3. Investigate or kill resource-intensive processes
+4. Check for runaway processes
+
+### Disk Full Error
+
+1. Check disk usage with `df -h`
+2. Use ncdu to find large directories
+3. Clean package cache: `sudo apt clean`
+4. Remove old logs: `sudo journalctl --vacuum-time=7d`
+5. Delete unnecessary files
+
+### Port Already in Use
+
+1. Find process: `sudo lsof -i:PORT`
+2. Kill process: `sudo kill -9 PID`
+3. Or use: `sudo fuser -k PORT/tcp`
+4. Verify port is free: `sudo lsof -i:PORT`
+
+### Terminal Performance Issues
+
+1. Check Oh My Zsh plugin count (too many can slow startup)
+2. Disable unnecessary plugins
+3. Use lighter terminal theme
+4. Clear shell history if too large
+
+## Best Practices
+
+### Daily Workflow
+
+- Use tmux for organizing development sessions
+- Monitor resources with htop when system feels slow
+- Check disk space weekly with ncdu
+- Keep terminal organized with Zsh aliases
+
+### Maintenance Schedule
+
+- **Daily**: Monitor system resources during development
+- **Weekly**: Check disk usage and clean up if needed
+- **Monthly**: Update system packages and remove old files
+- **Quarterly**: Review installed tools and remove unused ones
+
+### Configuration Management
+
+- Back up your `.zshrc` and `.tmux.conf` files
+- Version control your dotfiles with Git
+- Document custom configurations
+- Test changes before committing
+
+## Next Steps
+
+Once you have your system tools set up, explore:
+
+- Custom Zsh themes and plugins
+- Advanced tmux configurations
+- Shell scripting for automation
+- System monitoring with htop scripts
+- Automated maintenance tasks
+
+## Related Resources
+
+<CardGroup cols={2}>
+  <Card
+    title="Git Guide"
+    icon="git"
+    href="/guides/git"
+  >
+    Version control your configuration files and dotfiles
+  </Card>
+  <Card
+    title="Docker Guide"
+    icon="docker"
+    href="/guides/docker"
+  >
+    Monitor Docker containers with system tools
+  </Card>
+  <Card
+    title="Node.js Guide"
+    icon="node"
+    href="/guides/nodejs"
+  >
+    Manage Node.js processes and development environments
+  </Card>
+</CardGroup>

@@ -1,122 +1,105 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
-  "name": "Mint Starter Kit",
+  "name": "EasyGoDocs",
+  "theme": "palm",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#6366f1",
+    "light": "#818cf8",
+    "dark": "#4f46e5"
   },
   "favicon": "/favicon.svg",
+  "navbar": {
+    "primary": {
+      "type": "github",
+      "href": "https://github.com/EasyGoDocs/easygodocs"
+    }
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/EasyGoDocs/easygodocs"
+    }
+  },
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "Documentation",
         "groups": [
           {
-            "group": "Getting started",
+            "group": "Get Started",
             "pages": [
-              "index",
+              "introduction",
               "quickstart",
-              "development"
+              "features"
             ]
           },
           {
-            "group": "Customization",
+            "group": "Core Concepts",
             "pages": [
-              "essentials/settings",
-              "essentials/navigation"
+              "concepts/json-structure",
+              "concepts/tsx-templates",
+              "concepts/navigation"
             ]
           },
           {
-            "group": "Writing content",
+            "group": "Guides",
             "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/reusable-snippets"
+              "guides/docker",
+              "guides/git",
+              "guides/nodejs",
+              "guides/system-tools"
             ]
           },
           {
-            "group": "AI tools",
+            "group": "Contributing",
             "pages": [
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
+              "contributing/guide",
+              "contributing/code-of-conduct"
             ]
           }
         ]
       },
       {
-        "tab": "API reference",
+        "tab": "Documentation Library",
         "groups": [
           {
-            "group": "API documentation",
+            "group": "Development Tools",
             "pages": [
-              "api-reference/introduction"
+              "library/install-git-ubuntu",
+              "library/install-nodejs-apt",
+              "library/install-nodejs-nvm",
+              "library/install-docker-ubuntu",
+              "library/install-docker-compose"
             ]
           },
           {
-            "group": "Endpoint examples",
+            "group": "System Tools",
             "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "library/install-zsh",
+              "library/install-oh-my-zsh",
+              "library/install-tmux",
+              "library/install-htop",
+              "library/install-ncdu",
+              "library/check-disk-space",
+              "library/find-ip-address",
+              "library/kill-process-port",
+              "library/ubuntu-package-update"
+            ]
+          },
+          {
+            "group": "Frameworks & Libraries",
+            "pages": [
+              "library/react"
+            ]
+          },
+          {
+            "group": "Utilities",
+            "pages": [
+              "library/generate-ssh-key-github",
+              "library/chrome-download"
             ]
           }
         ]
       }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
-    }
-  },
-  "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
-  },
-  "navbar": {
-    "links": [
-      {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
-      }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
-    }
-  },
-  "contextual": {
-    "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
-   ]
-  },
-  "footer": {
-    "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
-    }
+    ]
   }
 }

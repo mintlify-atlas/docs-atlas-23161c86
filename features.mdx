@@ -1,0 +1,642 @@
+---
+title: Features & Capabilities
+description: Explore everything EasyGoDocs can do—from simple Markdown rendering to advanced component integration.
+---
+
+# Features & Capabilities
+
+EasyGoDocs is built to handle everything from simple tutorial pages to complex, interactive documentation. This guide covers all available features and how to use them.
+
+## Core Features
+
+<CardGroup cols={2}>
+  <Card title="Dual Documentation Systems" icon="files">
+    Choose between simple MDX files or structured JSON templates based on your needs.
+  </Card>
+  
+  <Card title="Zero-Config Routing" icon="route">
+    Drop files in `src/docs/` and they're automatically routed at `/mdx/filename`.
+  </Card>
+  
+  <Card title="Hot Module Replacement" icon="flame">
+    Edit and see changes instantly without page refresh during development.
+  </Card>
+  
+  <Card title="Server-Side Rendering" icon="server">
+    All documentation is pre-rendered for SEO and performance.
+  </Card>
+</CardGroup>
+
+## Documentation Approaches
+
+### 1. MDX Files (Simple & Fast)
+
+The recommended approach for most documentation:
+
+**Advantages:**
+- ✅ Immediate: Just create a file and start writing
+- ✅ Familiar: Standard Markdown syntax
+- ✅ Powerful: Embed React components when needed
+- ✅ Version controlled: Changes tracked in Git
+
+**How it works:**
+
+```bash
+# Create file
+src/docs/docker-setup.mdx
+
+# Automatically available at
+/mdx/docker-setup
+```
+
+The MDX renderer (`src/app/(main)/mdx/[slug]/page.tsx:22`) handles:
+- File reading from `src/docs/`
+- Heading extraction for TOC
+- MDX compilation with custom components
+- Syntax highlighting via code blocks
+
+**Example MDX with components:**
+
+```mdx
+# Docker Installation
+
+import { Alert } from '@/components/ui/alert'
+
+<Alert variant="warning">
+  Requires Ubuntu 20.04 or higher
+</Alert>
+
+## Installation Steps
+
+```bash
+sudo apt update
+sudo apt install docker.io
+```
+
+Verify installation:
+
+```bash
+docker --version
+```
+```
+
+<Note>
+  **Component imports**: Use the `@/` alias to import from `src/`. All components must be React Server Components or explicitly marked `"use client"`.
+</Note>
+
+### 2. JSON + TSX Templates (Advanced)
+
+For complex, structured documentation with custom layouts:
+
+**Advantages:**
+- ✅ Structured: Defined schema for content blocks
+- ✅ Reusable: Same JSON can power multiple views
+- ✅ Interactive: Programmatic navigation and TOC
+- ✅ Metadata: Built-in support for authors, contributors
+
+**How it works:**
+
+```json
+// src/db/my-doc.json
+{
+  "id": "my-doc",
+  "title": "My Documentation",
+  "description": "A comprehensive guide",
+  "sidebar": [
+    {
+      "title": "Getting Started",
+      "href": "#getting-started",
+      "children": [
+        { "title": "Installation", "href": "#installation" },
+        { "title": "Configuration", "href": "#configuration" }
+      ]
+    }
+  ],
+  "toc": [
+    { "id": "getting-started", "title": "Getting Started", "level": 1 },
+    { "id": "installation", "title": "Installation", "level": 2 }
+  ],
+  "content": [
+    {
+      "type": "heading",
+      "id": "getting-started",
+      "level": 1,
+      "text": "Getting Started"
+    },
+    {
+      "type": "paragraph",
+      "text": "This guide will walk you through the basics."
+    },
+    {
+      "type": "code",
+      "language": "bash",
+      "code": "npm install my-package"
+    }
+  ],
+  "credits": {
+    "author": "Jane Doe",
+    "contributors": ["John Smith", "Alice Johnson"]
+  }
+}
+```
+
+**Build-time indexing:**
+
+Run `pnpm run generate-db-index` to create `src/db/export-json/db-index.ts:1`:
+
+```typescript
+// AUTO-GENERATED FILE. DO NOT EDIT.
+import doc0 from "../react.json";
+import doc1 from "../my-doc.json";
+
+export const dbFiles = [
+  doc0,
+  doc1,
+];
+```
+
+This allows static imports in serverless environments (Vercel, Netlify) where dynamic file reading isn't available.
+
+**Rendering:**
+
+The JSON renderer (`src/components/documentation/documentation-component.tsx:207`) provides:
+- Collapsible sidebar with nested navigation
+- Sticky table of contents with scroll tracking
+- Mobile-responsive drawer
+- Author credits footer
+
+<Warning>
+  **Build requirement:** JSON docs require running `generate-db-index` before deployment. This is automatic in `pnpm build`.
+</Warning>
+
+## Navigation & Layout
+
+### Automatic Table of Contents
+
+Both MDX and JSON systems generate TOC automatically:
+
+**MDX**: Extracted from Markdown headings via `extractHeadings()` (`src/lib/mdx-headings.ts:1`)
+
+```typescript
+// Parses MDX and returns:
+[
+  { id: 'introduction', text: 'Introduction', depth: 1 },
+  { id: 'features', text: 'Features', depth: 2 }
+]
+```
+
+**JSON**: Explicitly defined in the `toc` array:
+
+```json
+"toc": [
+  { "id": "section-1", "title": "Section 1", "level": 1 },
+  { "id": "subsection", "title": "Subsection", "level": 2 }
+]
+```
+
+### Sidebar Navigation (JSON only)
+
+The JSON template includes a collapsible sidebar with nested items:
+
+```typescript
+// src/components/documentation/documentation-component.tsx:50
+const SidebarNav = ({ items }) => {
+  const [openItems, setOpenItems] = useState<string[]>([]);
+  
+  const toggleItem = (title: string) => {
+    setOpenItems(prev => 
+      prev.includes(title) 
+        ? prev.filter(item => item !== title)
+        : [...prev, title]
+    );
+  };
+  // ...
+}
+```
+
+**Features:**
+- Nested navigation up to 3 levels
+- Expand/collapse with chevron icons
+- Smooth scrolling to sections
+- Active state tracking
+
+### Mobile Responsiveness
+
+**Desktop (≥1024px):**
+- Fixed sidebar (left)
+- Content (center)
+- TOC (right, ≥1280px only)
+
+**Mobile (&lt;1024px):**
+- Hamburger menu button
+- Slide-out drawer for sidebar
+- Full-width content
+- TOC accessible via scroll
+
+```tsx
+// src/components/documentation/documentation-component.tsx:214
+<Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
+  <SheetTrigger asChild>
+    <Button variant="ghost" size="icon" className="lg:hidden">
+      <Menu className="h-5 w-5" />
+    </Button>
+  </SheetTrigger>
+  {/* ... */}
+</Sheet>
+```
+
+## Syntax Highlighting
+
+Code blocks use `prism-react-renderer` for beautiful, performant highlighting:
+
+```tsx
+// src/components/ui/code-block.tsx:1
+import { Highlight, themes } from 'prism-react-renderer';
+
+export const CodeBlock = ({ children, language, className }) => (
+  <Highlight
+    theme={themes.vsDark}
+    code={children}
+    language={language || 'text'}
+  >
+    {({ style, tokens, getLineProps, getTokenProps }) => (
+      <pre style={style}>
+        {tokens.map((line, i) => (
+          <div key={i} {...getLineProps({ line })}>
+            {line.map((token, key) => (
+              <span key={key} {...getTokenProps({ token })} />
+            ))}
+          </div>
+        ))}
+      </pre>
+    )}
+  </Highlight>
+);
+```
+
+**Supported languages:** JavaScript, TypeScript, Python, Bash, JSON, YAML, SQL, Rust, Go, and [100+ more](https://prismjs.com/#supported-languages).
+
+**Usage in MDX:**
+
+````markdown
+```typescript
+function greet(name: string): string {
+  return `Hello, ${name}!`;
+}
+```
+````
+
+**Usage in JSON:**
+
+```json
+{
+  "type": "code",
+  "language": "typescript",
+  "code": "function greet(name: string): string {\n  return `Hello, ${name}!`;\n}"
+}
+```
+
+<Note>
+  **Theme customization:** Change the theme in `code-block.tsx` by importing a different theme from `prism-react-renderer/themes`.
+</Note>
+
+## Dark Mode Support
+
+EasyGoDocs uses Tailwind's dark mode with class-based switching:
+
+```tsx
+// tailwind.config.js
+module.exports = {
+  darkMode: 'class',
+  // ...
+}
+```
+
+Styles automatically adapt:
+
+```tsx
+<div className="bg-white dark:bg-slate-900 text-black dark:text-white">
+  Content
+</div>
+```
+
+Syntax highlighting themes are also dark mode aware.
+
+## Component Library
+
+EasyGoDocs includes Radix UI components styled with Tailwind:
+
+### Button
+
+```tsx
+import { Button } from '@/components/ui/button'
+
+<Button variant="default">Primary</Button>
+<Button variant="outline">Secondary</Button>
+<Button variant="ghost">Tertiary</Button>
+```
+
+### Dialog/Sheet
+
+```tsx
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
+
+<Sheet>
+  <SheetTrigger>Open</SheetTrigger>
+  <SheetContent side="left">
+    Content here
+  </SheetContent>
+</Sheet>
+```
+
+### Scroll Area
+
+```tsx
+import { ScrollArea } from '@/components/ui/scroll-area'
+
+<ScrollArea className="h-96">
+  Long content...
+</ScrollArea>
+```
+
+### Code Block
+
+```tsx
+import { CodeBlock } from '@/components/ui/code-block'
+
+<CodeBlock language="javascript">
+  {`const x = 10;`}
+</CodeBlock>
+```
+
+## Animation & Interactions
+
+Framer Motion powers smooth animations:
+
+```tsx
+import { motion } from 'framer-motion'
+
+<motion.div
+  initial={{ opacity: 0, y: 20 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.5 }}
+>
+  Animated content
+</motion.div>
+```
+
+**Built-in animations:**
+- Sidebar expand/collapse
+- Mobile drawer slide
+- Scroll-triggered TOC highlights
+- Button hover states
+
+## Search Integration
+
+<Warning>
+  **Coming soon:** Full-text search is planned but not yet implemented. Currently, use browser find (Ctrl+F) or TOC navigation.
+</Warning>
+
+**Future implementation:**
+- Client-side search index
+- Fuzzy matching
+- Keyboard shortcuts (`Ctrl+K`)
+- Search result highlighting
+
+## Build & Deployment
+
+### Development
+
+```bash
+pnpm dev
+```
+
+- Turbopack bundler for instant HMR
+- Runs on `http://localhost:3000`
+- Auto-reloads on file changes
+
+### Production Build
+
+```bash
+pnpm build
+```
+
+Build process:
+1. **Generate DB index**: `generate-db-index.cjs` scans `src/db/`
+2. **Generate MDX routes**: `generate-mdx-routes.cjs` scans `src/docs/`
+3. **Next.js build**: Static generation of all pages
+4. **Output**: `.next/` directory ready for deployment
+
+### Deployment Platforms
+
+**Vercel (Recommended):**
+```bash
+vercel deploy
+```
+- Zero-config deployment
+- Automatic HTTPS
+- Global CDN
+- Preview deployments for PRs
+
+**Netlify:**
+```toml
+# netlify.toml
+[build]
+  command = "pnpm build"
+  publish = ".next"
+```
+
+**Docker:**
+```dockerfile
+FROM node:20-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm install -g pnpm && pnpm install
+COPY . .
+RUN pnpm build
+CMD ["pnpm", "start"]
+```
+
+<Note>
+  **Serverless compatibility:** Build scripts ensure JSON docs work in serverless by creating static imports.
+</Note>
+
+## Performance Optimizations
+
+### Static Generation
+
+All documentation pages are pre-rendered at build time:
+
+```tsx
+// src/app/(main)/mdx/[slug]/page.tsx:11
+export async function generateStaticParams() {
+  const docsDirectory = path.join(process.cwd(), 'src/docs');
+  const filenames = fs.readdirSync(docsDirectory);
+  
+  return filenames
+    .filter(filename => filename.endsWith('.mdx'))
+    .map(filename => ({
+      slug: filename.replace(/\.mdx$/, ''),
+    }));
+}
+```
+
+**Benefits:**
+- Instant page loads
+- SEO-friendly
+- No server-side rendering overhead
+
+### Code Splitting
+
+Next.js automatically splits code by route:
+- Shared UI components → `_app` bundle
+- Page-specific code → route bundles
+- Dynamic imports → lazy-loaded chunks
+
+### Image Optimization
+
+```tsx
+import Image from 'next/image'
+
+<Image 
+  src="/docs/screenshot.png" 
+  alt="Screenshot" 
+  width={800} 
+  height={600}
+  placeholder="blur"
+/>
+```
+
+**Next.js Image features:**
+- Automatic WebP conversion
+- Responsive srcsets
+- Lazy loading
+- Blur placeholders
+
+## Customization
+
+### Styling
+
+Tailwind configuration in `tailwind.config.js`:
+
+```javascript
+module.exports = {
+  theme: {
+    extend: {
+      colors: {
+        primary: {
+          DEFAULT: '#your-color',
+          // ...
+        }
+      },
+      fontFamily: {
+        sans: ['Inter', 'sans-serif'],
+      }
+    }
+  }
+}
+```
+
+### Custom Components
+
+Create reusable MDX components:
+
+```tsx
+// src/components/mdx/Callout.tsx
+export const Callout = ({ type, children }) => (
+  <div className={`callout callout-${type}`}>
+    {children}
+  </div>
+);
+```
+
+Use in MDX:
+
+```mdx
+import { Callout } from '@/components/mdx/Callout'
+
+<Callout type="info">
+  This is an informational callout.
+</Callout>
+```
+
+### Layout Customization
+
+Edit `src/app/(main)/layout.tsx` to modify the global layout:
+
+```tsx
+export default function MainLayout({ children }) {
+  return (
+    <div className="min-h-screen">
+      <header>{/* Your header */}</header>
+      <main>{children}</main>
+      <footer>{/* Your footer */}</footer>
+    </div>
+  );
+}
+```
+
+## Contributing Features
+
+Want to add a feature to EasyGoDocs?
+
+<Steps>
+  <Step title="Check Existing Issues">
+    Search [GitHub Issues](https://github.com/EasyGoDocs/easygodocs/issues) to avoid duplicates.
+  </Step>
+  
+  <Step title="Create a Proposal">
+    Open an issue with:
+    - Feature description
+    - Use cases
+    - Implementation ideas
+  </Step>
+  
+  <Step title="Get Assigned">
+    Wait for maintainer approval and assignment (required for GSSoC points).
+  </Step>
+  
+  <Step title="Implement & Test">
+    - Follow code style guidelines
+    - Test on desktop and mobile  
+    - Add documentation
+  </Step>
+  
+  <Step title="Submit PR">
+    Include:
+    - Clear description
+    - Screenshots/videos
+    - Testing notes
+  </Step>
+</Steps>
+
+<Note>
+  **GSSoC contributors:** Feature additions typically earn 10 points (Level 3).
+</Note>
+
+## Roadmap
+
+Upcoming features:
+
+- [ ] Full-text search with keyboard shortcuts
+- [ ] Multi-language support (i18n)
+- [ ] Version control for docs
+- [ ] Comments and feedback system
+- [ ] Analytics integration
+- [ ] PDF export
+- [ ] API documentation generator
+- [ ] Custom domain support
+
+---
+
+<div className="text-center py-8 border-t">
+  <p className="text-lg font-semibold mb-2">
+    Have a feature request?
+  </p>
+  <p className="text-muted-foreground mb-4">
+    We'd love to hear your ideas! Open an issue on GitHub.
+  </p>
+  <a href="https://github.com/EasyGoDocs/easygodocs/issues/new" className="inline-flex items-center justify-center rounded-md bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary/90 transition-colors">
+    Request a Feature →
+  </a>
+</div>

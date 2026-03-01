@@ -1,0 +1,499 @@
+---
+title: 'Navigation & Routing'
+description: 'How EasyGoDocs discovers, routes, and displays JSON documentation files using Next.js dynamic routing'
+---
+
+## Overview
+
+EasyGoDocs uses a hybrid approach to navigation and routing:
+- **JSON docs**: Dynamic routing via Next.js `[slug]` parameter
+- **MDX docs**: Dynamic routing with static generation at build time
+- **Build scripts**: Automatic index generation for serverless deployment
+
+This architecture enables scalable documentation with minimal configuration.
+
+## JSON Documentation Routing
+
+### File Discovery
+
+JSON documentation files are stored in `src/db/` and automatically discovered at build time by the `generate-db-index.cjs` script:
+
+```javascript
+const fs = require('fs');
+const path = require('path');
+
+const dbDir = path.join(__dirname, '../src/db');
+const exportDir = path.join(dbDir, 'export-json');
+const outFile = path.join(exportDir, 'db-index.ts');
+
+// Get all .json files in src/db/ (excluding export-json subdir)
+const files = fs.readdirSync(dbDir)
+  .filter(f => f.endsWith('.json'));
+
+let imports = '';
+let arr = 'export const dbFiles = [\n';
+
+files.forEach((file, i) => {
+  const varName = 'doc' + i;
+  imports += `import ${varName} from "../${file}";\n`;
+  arr += `  ${varName},\n`;
+});
+arr += '];\n';
+
+const banner = `// AUTO-GENERATED FILE. DO NOT EDIT.\n// Run scripts/generate-db-index.js to update.\n\n`;
+
+fs.writeFileSync(outFile, banner + imports + '\n' + arr);
+console.log(`Generated db-index.ts with ${files.length} docs.`);
+```
+
+**What this does:**
+1. Scans `src/db/` for all `.json` files
+2. Generates static imports for each file (e.g., `import doc0 from "../react.json"`)
+3. Exports a `dbFiles` array containing all imported docs
+4. Creates `src/db/export-json/db-index.ts` with the generated code
+
+<Note>
+This script runs automatically during the build process via the `prebuild` npm script. You can also run it manually: `node scripts/generate-db-index.cjs`
+</Note>
+
+### Generated Index File
+
+The script generates `src/db/export-json/db-index.ts`:
+
+```typescript
+// AUTO-GENERATED FILE. DO NOT EDIT.
+// Run scripts/generate-db-index.js to update.
+
+import doc0 from "../react.json";
+
+export const dbFiles = [
+  doc0,
+];
+```
+
+This file is then imported by the dynamic route handler to provide access to all documentation files.
+
+### Dynamic Route Handler
+
+The route handler at `src/app/(main)/[slug]/page.tsx` maps URL slugs to JSON files:
+
+```typescript
+import DocumentationPage from "@/components/documentation/documentation-component";
+import { dbFiles } from "@/db/export-json/index";
+import React from "react";
+
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const doc = dbFiles.find((doc) => doc.id === slug);
+
+  console.log(slug);
+
+  if (!doc) {
+    return <div>Document not found</div>;
+  }
+  return (
+    <div>
+      <DocumentationPage jsonData={doc} />
+    </div>
+  );
+}
+```
+
+**Flow:**
+1. User visits `/docs/react`
+2. Next.js calls the page component with `params.slug = "react"`
+3. Code searches `dbFiles` array for a doc with `id: "react"`
+4. If found, renders `DocumentationPage` with the JSON data
+5. If not found, displays "Document not found"
+
+<Tip>
+The `id` field in your JSON file determines the URL slug. A file with `"id": "react"` will be accessible at `/docs/react`.
+</Tip>
+
+## MDX Documentation Routing
+
+### File Discovery
+
+MDX files are stored in `src/docs/` and discovered by `generate-mdx-routes.cjs`:
+
+```javascript
+const fs = require('fs');
+const path = require('path');
+
+const docsDir = path.join(__dirname, '../src/docs');
+const outputDir = path.join(__dirname, '../src/app/(main)/mdx');
+const outputFile = path.join(outputDir, 'mdx-files.json');
+
+// Get all .mdx files in src/docs/
+const files = fs.readdirSync(docsDir)
+  .filter(f => f.endsWith('.mdx'))
+  .map(f => f.replace('.mdx', ''));
+
+// Create the output directory if it doesn't exist
+if (!fs.existsSync(outputDir)) {
+  fs.mkdirSync(outputDir, { recursive: true });
+}
+
+// Generate the JSON file with all MDX file names
+const mdxFiles = {
+  files: files,
+  generatedAt: new Date().toISOString()
+};
+
+fs.writeFileSync(outputFile, JSON.stringify(mdxFiles, null, 2));
+console.log(`Generated mdx-files.json with ${files.length} MDX files:`, files);
+```
+
+**What this does:**
+1. Scans `src/docs/` for all `.mdx` files
+2. Strips the `.mdx` extension to get the slug
+3. Generates `mdx-files.json` with the list of files and timestamp
+4. Creates the output directory if it doesn't exist
+
+### MDX Route Handler
+
+The MDX route handler at `src/app/(main)/mdx/[slug]/page.tsx` uses Next.js static generation:
+
+```typescript
+import { notFound } from 'next/navigation';
+import { MDXRemote } from 'next-mdx-remote/rsc';
+import fs from 'fs';
+import path from 'path';
+
+// Generate static params for all MDX files
+export async function generateStaticParams() {
+  const docsDirectory = path.join(process.cwd(), 'src/docs');
+  const filenames = fs.readdirSync(docsDirectory);
+  
+  return filenames
+    .filter(filename => filename.endsWith('.mdx'))
+    .map(filename => ({
+      slug: filename.replace(/\.mdx$/, ''),
+    }));
+}
+
+export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  
+  // Read the MDX file
+  const filePath = path.join(process.cwd(), 'src/docs', `${slug}.mdx`);
+  let source = '';
+  
+  try {
+    source = fs.readFileSync(filePath, 'utf8');
+  } catch (error) {
+    console.error(`Failed to load MDX file: ${filePath}`, error);
+    return notFound();
+  }
+
+  const headings = await extractHeadings(source);
+
+  // Custom components for MDX
+  const components = {
+    pre: ({ children, ...props }: React.ComponentProps<'pre'>) => {
+      // Extract language from className if it exists
+      let language = '';
+      let codeContent = children;
+      
+      if (React.isValidElement(children)) {
+        const className = (children.props as { className?: string })?.className;
+        if (className) {
+          language = className.replace('language-', '');
+        }
+        codeContent = (children.props as { children?: React.ReactNode })?.children;
+      }
+      
+      return (
+        <CodeBlock language={language} {...props}>
+          {codeContent}
+        </CodeBlock>
+      );
+    },
+    code: ({ children, className, ...props }: React.ComponentProps<'code'>) => {
+      // Inline code styling
+      return (
+        <code className="bg-[#1e1e1e] px-2 py-1 rounded-md text-sm font-mono text-white border border-slate-700" {...props}>
+          {children}
+        </code>
+      );
+    }
+  };
+
+  return (
+    <article className="prose prose-lg dark:prose-invert max-w-none">
+      <MDXRemote source={source} components={components} />
+    </article>
+  );
+}
+```
+
+**Key Features:**
+- `generateStaticParams()`: Pre-renders all MDX pages at build time
+- File system access: Reads `.mdx` files directly from disk
+- Custom components: Overrides default MDX rendering for code blocks
+- Heading extraction: Generates table of contents from MDX content
+- Error handling: Returns 404 for missing files
+
+<Note>
+`generateStaticParams()` enables Next.js to statically generate all MDX pages at build time, improving performance and SEO.
+</Note>
+
+## URL Structure
+
+The routing system creates the following URL patterns:
+
+### JSON Documentation
+```
+/docs/{id}              → src/db/{filename}.json
+/docs/react             → src/db/react.json (id: "react")
+/docs/getting-started   → src/db/getting-started.json (id: "getting-started")
+```
+
+### MDX Documentation
+```
+/mdx/{slug}             → src/docs/{slug}.mdx
+/mdx/contributing       → src/docs/contributing.mdx
+/mdx/api-reference      → src/docs/api-reference.mdx
+```
+
+### Special Pages
+```
+/                       → src/app/(public)/page.tsx (Homepage)
+/all-docs               → src/app/all-docs/page.tsx (Doc listing)
+/contribution-guide     → src/app/contribution-guide/page.tsx
+/features               → src/app/(nav-items)/features/page.tsx
+/pricing                → src/app/(nav-items)/pricing/page.tsx
+```
+
+## Build Process
+
+The complete build workflow:
+
+1. **Pre-build**: Run generation scripts
+```bash
+npm run prebuild
+# Executes:
+# - node scripts/generate-db-index.cjs
+# - node scripts/generate-mdx-routes.cjs
+```
+
+2. **Build**: Next.js build with static generation
+```bash
+npm run build
+# - Generates static pages for MDX docs
+# - Creates optimized bundles
+# - Prepares for deployment
+```
+
+3. **Deploy**: Serverless-ready output
+- All JSON docs are statically imported
+- MDX pages are pre-rendered
+- No runtime file system access needed
+
+<Tip>
+The generation scripts ensure that all documentation is bundled at build time, making the application fully compatible with serverless environments like Vercel, Netlify, and AWS Lambda.
+</Tip>
+
+## In-Page Navigation
+
+EasyGoDocs provides three levels of navigation:
+
+### 1. Sidebar Navigation
+
+Defined in the JSON `sidebar` array:
+
+```json
+{
+  "sidebar": [
+    {
+      "title": "React Guide",
+      "href": "#react-guide",
+      "children": [
+        { "title": "Getting Started", "href": "#getting-started" },
+        { "title": "Core Concepts", "href": "#core-concepts" }
+      ]
+    }
+  ]
+}
+```
+
+Features:
+- Collapsible sections
+- Unlimited nesting depth
+- Anchor link navigation (`#` hrefs)
+- Persistent open/close state during page visit
+
+### 2. Table of Contents
+
+Defined in the JSON `toc` array:
+
+```json
+{
+  "toc": [
+    { "id": "react-guide", "title": "React Guide", "level": 1 },
+    { "id": "getting-started", "title": "Getting Started", "level": 2 }
+  ]
+}
+```
+
+Features:
+- Automatic scroll tracking with IntersectionObserver
+- Click to jump to section
+- Highlights current section
+- Indented by heading level
+
+### 3. Anchor Links
+
+All headings in content become anchor links:
+
+```json
+{
+  "type": "heading",
+  "id": "core-concepts",
+  "level": 2,
+  "text": "Core Concepts"
+}
+```
+
+Rendered as:
+```html
+<h2 id="core-concepts">Core Concepts</h2>
+```
+
+Accessible via:
+- Direct URL: `/docs/react#core-concepts`
+- Sidebar click: `href="#core-concepts"`
+- TOC click: Smooth scroll to element
+
+## Adding New Documentation
+
+### Add a JSON Document
+
+1. Create `src/db/my-doc.json`:
+```json
+{
+  "id": "my-doc",
+  "title": "My Documentation",
+  "sidebar": [...],
+  "toc": [...],
+  "content": [...]
+}
+```
+
+2. Run the generation script:
+```bash
+node scripts/generate-db-index.cjs
+```
+
+3. The doc is now available at `/docs/my-doc`
+
+<Note>
+No code changes required. The dynamic route automatically picks up new JSON files after regenerating the index.
+</Note>
+
+### Add an MDX Document
+
+1. Create `src/docs/my-guide.mdx`:
+```mdx
+# My Guide
+
+Content goes here...
+```
+
+2. Run the generation script:
+```bash
+node scripts/generate-mdx-routes.cjs
+```
+
+3. Rebuild the app:
+```bash
+npm run build
+```
+
+4. The doc is now available at `/mdx/my-guide`
+
+## Document Discovery Page
+
+The `/all-docs` page lists all available documentation by reading the generated index files:
+
+```typescript
+import { dbFiles } from "@/db/export-json/index";
+
+export default function AllDocs() {
+  return (
+    <div>
+      <h1>All Documentation</h1>
+      {dbFiles.map((doc) => (
+        <a key={doc.id} href={`/docs/${doc.id}`}>
+          <h2>{doc.title}</h2>
+          <p>{doc.description}</p>
+        </a>
+      ))}
+    </div>
+  );
+}
+```
+
+This provides:
+- Automatic discovery of all docs
+- Search functionality (can be added)
+- Categories and tags (if added to JSON schema)
+- Recently updated docs (using `generatedAt` timestamp)
+
+## Best Practices
+
+### Use Descriptive IDs
+
+```json
+// ✅ Good - clear, URL-friendly IDs
+{ "id": "getting-started" }
+{ "id": "api-reference" }
+{ "id": "deployment-guide" }
+
+// ❌ Bad - unclear or messy IDs
+{ "id": "doc1" }
+{ "id": "getting_started" }
+{ "id": "API REF" }
+```
+
+### Keep Anchor IDs Consistent
+
+Ensure IDs match across sidebar, TOC, and content:
+
+```json
+// ✅ All three reference the same ID
+"sidebar": [{ "href": "#getting-started" }],
+"toc": [{ "id": "getting-started" }],
+"content": [{ "id": "getting-started" }]
+```
+
+### Run Scripts Before Deployment
+
+Always regenerate indexes before deploying:
+
+```bash
+npm run prebuild && npm run build
+```
+
+Or set up automatic execution in your CI/CD pipeline:
+
+```yaml
+# .github/workflows/deploy.yml
+- run: npm run prebuild
+- run: npm run build
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="JSON Structure" icon="brackets-curly" href="/concepts/json-structure">
+    Learn the complete JSON schema for documentation
+  </Card>
+  <Card title="TSX Templates" icon="code" href="/concepts/tsx-templates">
+    Understand how templates render JSON into pages
+  </Card>
+</CardGroup>

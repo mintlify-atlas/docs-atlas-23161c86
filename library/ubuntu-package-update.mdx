@@ -1,0 +1,32 @@
+---
+title: Update and Upgrade Packages in Ubuntu
+description: Keep your Ubuntu system up-to-date by updating package lists and upgrading installed packages
+---
+
+<Steps>
+  <Step title="Open your terminal">
+    Press `Ctrl+Alt+T` to open a terminal.
+  </Step>
+
+  <Step title="Update package lists">
+    ```bash
+    sudo apt update
+    ```
+  </Step>
+
+  <Step title="Upgrade installed packages">
+    ```bash
+    sudo apt upgrade -y
+    ```
+  </Step>
+
+  <Step title="Clean up unnecessary packages">
+    ```bash
+    sudo apt autoremove -y
+    ```
+  </Step>
+</Steps>
+
+<Tip>
+Run these commands regularly to keep your system secure and up-to-date with the latest software versions.
+</Tip>

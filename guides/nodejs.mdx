@@ -1,0 +1,415 @@
+---
+title: Node.js Guide
+description: Complete guide to setting up and managing Node.js development environments
+---
+
+Node.js is a JavaScript runtime built on Chrome's V8 engine that allows you to run JavaScript on the server side. It's widely used for building web applications, APIs, command-line tools, and more.
+
+## Why Use Node.js?
+
+Node.js offers several advantages for modern development:
+
+- **JavaScript Everywhere**: Use the same language for frontend and backend
+- **Fast Performance**: Non-blocking I/O and event-driven architecture
+- **Rich Ecosystem**: Access to millions of packages via npm
+- **Active Community**: Large, supportive developer community
+- **Scalability**: Built for handling concurrent connections efficiently
+
+## Installing Node.js
+
+There are two main approaches to installing Node.js on Ubuntu: using the system package manager (apt) or using a version manager (nvm). Choose based on your needs.
+
+<CardGroup cols={2}>
+  <Card
+    title="Install Node.js with apt"
+    icon="download"
+    href="/library/install-nodejs-apt"
+  >
+    Quick installation using Ubuntu's package manager for a single Node.js version
+  </Card>
+  <Card
+    title="Install Node.js with nvm"
+    icon="layer-group"
+    href="/library/install-nodejs-nvm"
+  >
+    Install and manage multiple Node.js versions with Node Version Manager
+  </Card>
+</CardGroup>
+
+## Choosing Your Installation Method
+
+### apt Installation
+
+**Best for:**
+- Quick setup and getting started
+- Production servers with a single Node.js version
+- Simple projects that don't need version switching
+
+**Pros:**
+- Fast and straightforward
+- Managed by system package manager
+- Good for beginners
+
+**Cons:**
+- Limited to one Node.js version
+- May not have the latest version
+- Harder to switch versions
+
+### nvm Installation
+
+**Best for:**
+- Development environments
+- Working on multiple projects with different Node.js versions
+- Testing across different Node.js versions
+- Projects requiring specific Node.js versions
+
+**Pros:**
+- Install multiple Node.js versions
+- Easy version switching
+- Always access to latest versions
+- Per-project version configuration
+
+**Cons:**
+- Slightly more complex setup
+- Additional tool to manage
+- Version specific to user account
+
+## Getting Started with Node.js
+
+### Your First Node.js Application
+
+Create a simple Node.js script:
+
+```javascript
+// hello.js
+console.log('Hello, Node.js!');
+```
+
+Run it with:
+
+```bash
+node hello.js
+```
+
+### Creating a Web Server
+
+Build a basic HTTP server:
+
+```javascript
+// server.js
+const http = require('http');
+
+const server = http.createServer((req, res) => {
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.end('Hello World\n');
+});
+
+server.listen(3000, () => {
+  console.log('Server running at http://localhost:3000/');
+});
+```
+
+Run with:
+
+```bash
+node server.js
+```
+
+## Working with npm
+
+npm (Node Package Manager) comes bundled with Node.js and manages your project dependencies.
+
+### Initializing a Project
+
+```bash
+# Create package.json interactively
+npm init
+
+# Create package.json with defaults
+npm init -y
+```
+
+### Managing Packages
+
+```bash
+# Install a package
+npm install express
+
+# Install as dev dependency
+npm install --save-dev nodemon
+
+# Install globally
+npm install -g typescript
+
+# Install specific version
+npm install express@4.17.1
+
+# Remove a package
+npm uninstall express
+
+# Update packages
+npm update
+```
+
+### Using npm Scripts
+
+Define scripts in `package.json`:
+
+```json
+{
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "test": "jest",
+    "build": "tsc"
+  }
+}
+```
+
+Run scripts with:
+
+```bash
+npm run dev
+npm start
+npm test
+```
+
+## Managing Node.js Versions with nvm
+
+If you installed Node.js with nvm, you can manage multiple versions:
+
+### Common nvm Commands
+
+```bash
+# List available Node.js versions
+nvm list-remote
+
+# Install a specific version
+nvm install 18.17.0
+
+# Install latest LTS version
+nvm install --lts
+
+# Switch to a version
+nvm use 18.17.0
+
+# Set default version
+nvm alias default 18.17.0
+
+# List installed versions
+nvm list
+
+# Show current version
+nvm current
+```
+
+### Per-Project Node.js Versions
+
+Create a `.nvmrc` file in your project root:
+
+```
+18.17.0
+```
+
+Then use:
+
+```bash
+# Use version from .nvmrc
+nvm use
+
+# Install version from .nvmrc
+nvm install
+```
+
+## Building a Node.js Project
+
+### Project Structure
+
+A typical Node.js project structure:
+
+```
+my-project/
+├── node_modules/     # Dependencies (git ignored)
+├── src/              # Source code
+│   ├── index.js      # Entry point
+│   └── routes/       # Application routes
+├── tests/            # Test files
+├── .gitignore        # Git ignore file
+├── package.json      # Project metadata
+└── README.md         # Project documentation
+```
+
+### Essential Files
+
+**package.json** - Project configuration:
+```json
+{
+  "name": "my-project",
+  "version": "1.0.0",
+  "description": "My Node.js project",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
+```
+
+**.gitignore** - Exclude from version control:
+```
+node_modules/
+.env
+*.log
+dist/
+```
+
+## Popular Node.js Frameworks
+
+### Express.js
+
+Minimal web application framework:
+
+```javascript
+const express = require('express');
+const app = express();
+
+app.get('/', (req, res) => {
+  res.send('Hello Express!');
+});
+
+app.listen(3000, () => {
+  console.log('Server running on port 3000');
+});
+```
+
+### Other Popular Frameworks
+
+- **Nest.js**: Progressive framework for building efficient server-side applications
+- **Fastify**: Fast and low overhead web framework
+- **Koa**: Next generation web framework by Express team
+- **Hapi**: Rich framework for building applications and services
+
+## Best Practices
+
+### Security
+
+- Keep Node.js and npm updated
+- Audit dependencies regularly with `npm audit`
+- Use environment variables for sensitive data
+- Don't commit `node_modules/` or `.env` files
+- Validate and sanitize user input
+
+### Performance
+
+- Use async/await for asynchronous operations
+- Implement caching where appropriate
+- Use clustering for CPU-intensive tasks
+- Monitor memory usage and prevent leaks
+- Enable compression for HTTP responses
+
+### Development
+
+- Use ESLint for code quality
+- Implement automated testing
+- Use nodemon for automatic restarts during development
+- Follow semantic versioning
+- Document your code and API
+
+## Environment Variables
+
+Manage configuration with environment variables:
+
+**Create .env file:**
+```
+PORT=3000
+DB_HOST=localhost
+DB_USER=admin
+DB_PASS=secret
+```
+
+**Use dotenv package:**
+```javascript
+require('dotenv').config();
+
+const port = process.env.PORT || 3000;
+const dbHost = process.env.DB_HOST;
+```
+
+## Debugging Node.js
+
+### Console Debugging
+
+```javascript
+console.log('Variable value:', myVariable);
+console.error('Error occurred:', error);
+console.table(arrayOfObjects);
+```
+
+### Using Node.js Inspector
+
+```bash
+# Start with inspector
+node --inspect server.js
+
+# Debug from the start
+node --inspect-brk server.js
+```
+
+Then open Chrome DevTools at `chrome://inspect`
+
+## Testing
+
+### Popular Testing Frameworks
+
+- **Jest**: All-in-one testing framework
+- **Mocha**: Flexible testing framework
+- **Chai**: Assertion library
+- **Supertest**: HTTP assertion library
+
+### Basic Jest Example
+
+```javascript
+// math.test.js
+const { add } = require('./math');
+
+test('adds 1 + 2 to equal 3', () => {
+  expect(add(1, 2)).toBe(3);
+});
+```
+
+Run tests:
+```bash
+npm test
+```
+
+## Next Steps
+
+Once you're comfortable with Node.js basics, explore:
+
+- Building RESTful APIs
+- Working with databases (MongoDB, PostgreSQL)
+- Real-time applications with Socket.io
+- Microservices architecture
+- Serverless functions
+- TypeScript for type safety
+
+## Related Resources
+
+<CardGroup cols={2}>
+  <Card
+    title="Docker Guide"
+    icon="docker"
+    href="/guides/docker"
+  >
+    Containerize your Node.js applications with Docker
+  </Card>
+  <Card
+    title="Git Guide"
+    icon="git"
+    href="/guides/git"
+  >
+    Version control your Node.js projects with Git
+  </Card>
+</CardGroup>

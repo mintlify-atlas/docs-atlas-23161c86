@@ -1,80 +1,354 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+title: Quickstart Guide
+description: Get your first documentation page live in 5 minutes. From zero to published docs.
 ---
 
-## Get started in three steps
+# Quickstart Guide
 
-Get your documentation site running locally and make your first customization.
+This guide will take you from zero to your first published documentation page in under 5 minutes. No prior experience with EasyGoDocs required.
 
-### Step 1: Set up your local environment
+## Prerequisites
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
-    
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
+Before you begin, ensure you have:
 
-### Step 2: Deploy your changes
-
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
-
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
-
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
-
-### Step 3: Go live
-
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
-
-## Next steps
-
-Now that you have your docs running, explore these key features:
-
-<CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
-</CardGroup>
+- **Node.js 20+** installed ([download here](https://nodejs.org/))
+- **Git** for version control
+- A code editor (VS Code recommended)
+- Basic familiarity with Markdown
 
 <Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
+  **New to Markdown?** It's just text with simple formatting. `# Heading`, `**bold**`, `[link](url)`. That's 90% of what you need!
 </Note>
+
+## Installation
+
+<Steps>
+  <Step title="Clone the Repository">
+    ```bash
+    git clone https://github.com/EasyGoDocs/easygodocs.git
+    cd easygodocs
+    ```
+  </Step>
+  
+  <Step title="Install Dependencies">
+    EasyGoDocs uses `pnpm` for package management:
+    
+    ```bash
+    npm install -g pnpm  # If you don't have pnpm
+    pnpm install
+    ```
+    
+    This installs all dependencies including:
+    - Next.js 15 (React framework)
+    - MDX support (`@mdx-js/loader`, `@next/mdx`)
+    - UI components (Radix UI, Tailwind)
+    - Syntax highlighting (`prism-react-renderer`)
+  </Step>
+  
+  <Step title="Start Development Server">
+    ```bash
+    pnpm dev
+    ```
+    
+    The server starts at `http://localhost:3000` with Turbopack for blazing-fast hot reload.
+  </Step>
+</Steps>
+
+<Note>
+  **Port already in use?** The dev server will automatically try the next available port (3001, 3002, etc.).
+</Note>
+
+## Create Your First Documentation Page
+
+<Steps>
+  <Step title="Create an MDX File">
+    Create a new file in the `src/docs/` directory:
+    
+    ```bash
+    touch src/docs/my-first-doc.mdx
+    ```
+    
+    <Note>
+      **File naming:** Use lowercase with hyphens (kebab-case). The filename becomes your URL slug.
+    </Note>
+  </Step>
+  
+  <Step title="Add Content">
+    Open `src/docs/my-first-doc.mdx` and add some content:
+    
+    ```markdown
+    # My First Documentation
+    
+    Welcome to my documentation page! This is incredibly easy.
+    
+    ## Getting Started
+    
+    Here's a simple example with a list and code.
+    ```
+    
+    Your documentation supports:
+    - Lists and bullet points
+    - Code blocks with syntax highlighting
+    - Links to external resources
+    - And much more!
+  </Step>
+  
+  <Step title="View Your Page">
+    Navigate to `http://localhost:3000/mdx/my-first-doc`
+    
+    **That's it!** Your documentation is live with:
+    - Auto-generated table of contents
+    - Syntax-highlighted code blocks
+    - Responsive design
+    - Dark mode support
+  </Step>
+</Steps>
+
+## Project Structure
+
+Understanding the file organization:
+
+```plaintext
+easygodocs/
+├── src/
+│   ├── docs/                          # 📝 Your MDX files
+│   │   ├── react.mdx                 # Example: /mdx/react
+│   │   ├── install-git-ubuntu.mdx    # Example: /mdx/install-git-ubuntu
+│   │   └── my-first-doc.mdx          # Your new doc: /mdx/my-first-doc
+│   │
+│   ├── db/                            # 🗂️ JSON documentation (advanced)
+│   │   ├── react.json                # Structured doc data
+│   │   └── export-json/
+│   │       └── db-index.ts           # Auto-generated index
+│   │
+│   ├── app/
+│   │   └── (main)/
+│   │       ├── [slug]/               # JSON doc routes
+│   │       │   └── page.tsx          # Renders from src/db/*.json
+│   │       └── mdx/
+│   │           └── [slug]/           # MDX doc routes  
+│   │               └── page.tsx      # Renders from src/docs/*.mdx
+│   │
+│   ├── components/
+│   │   ├── documentation/
+│   │   │   └── documentation-component.tsx  # JSON renderer
+│   │   └── ui/
+│   │       └── code-block.tsx        # Syntax highlighting
+│   │
+│   └── lib/
+│       └── mdx-headings.ts           # TOC extraction
+│
+├── scripts/
+│   ├── generate-db-index.cjs         # Index JSON docs
+│   └── generate-mdx-routes.cjs       # List MDX files
+│
+├── package.json                       # Dependencies & scripts
+└── next.config.ts                     # Next.js + MDX config
+```
+
+<Warning>
+  **Don't edit auto-generated files:** `src/db/export-json/db-index.ts` and `src/app/(main)/mdx/mdx-files.json` are created by build scripts.
+</Warning>
+
+## Build Scripts Explained
+
+EasyGoDocs uses Node.js scripts to generate documentation indexes:
+
+### `generate-mdx-routes.cjs`
+
+```javascript
+// Scripts location: scripts/generate-mdx-routes.cjs:1
+// Scans src/docs/ for all .mdx files
+// Outputs src/app/(main)/mdx/mdx-files.json
+
+// Run manually:
+pnpm run generate-mdx-routes
+```
+
+This creates a JSON list of all MDX files for build optimization.
+
+### `generate-db-index.cjs`  
+
+```javascript
+// Scripts location: scripts/generate-db-index.cjs:1
+// Scans src/db/ for all .json files
+// Generates static imports in src/db/export-json/db-index.ts
+
+// Run manually:
+pnpm run generate-db-index
+```
+
+Required for JSON-based docs to work in serverless environments (like Vercel).
+
+<Note>
+  **Build process:** Both scripts run automatically during `pnpm build` (see `package.json:7`).
+</Note>
+
+## Available Scripts
+
+```bash
+# Development
+pnpm dev              # Start dev server with Turbopack
+
+# Production
+pnpm build            # Build for production
+pnpm start            # Start production server
+
+# Code Quality
+pnpm lint             # Check for linting errors
+pnpm lint:fix         # Auto-fix linting issues
+
+# Generators (auto-run during build)
+pnpm run generate-db-index      # Create DB index
+pnpm run generate-mdx-routes    # List MDX files
+```
+
+## Adding Features to Your Documentation
+
+### Code Blocks with Syntax Highlighting
+
+````markdown
+```typescript
+interface User {
+  id: number;
+  name: string;
+}
+
+const user: User = {
+  id: 1,
+  name: "John Doe"
+};
+```
+````
+
+Supported languages: JavaScript, TypeScript, Python, Bash, JSON, YAML, and 100+ more via Prism.
+
+### Lists and Steps
+
+```markdown
+## Ordered List
+1. First step
+2. Second step
+3. Third step
+
+## Unordered List  
+- Feature A
+- Feature B
+- Feature C
+```
+
+### Links and Images
+
+```markdown
+[Link text](https://example.com)
+
+![Checks passed](/images/checks-passed.png)
+```
+
+### Tables
+
+```markdown
+| Feature | Support |
+|---------|--------|
+| MDX | ✅ |
+| JSON | ✅ |
+| Hot Reload | ✅ |
+```
+
+### Blockquotes
+
+```markdown
+> This is a blockquote. Use it for callouts or important notes.
+```
+
+## Using React Components in MDX
+
+MDX lets you import and use React components:
+
+```mdx
+import { MyButton } from '../components/MyButton'
+
+# Interactive Documentation
+
+Click this button:
+
+<MyButton onClick={() => alert('Hello!')}>  
+  Click Me
+</MyButton>
+```
+
+<Warning>
+  **Component imports:** Path resolution is relative to the MDX file location. Use `@/` alias for absolute imports from `src/`.
+</Warning>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Explore Features" icon="compass" href="/features">
+    Learn about advanced capabilities like JSON docs, custom components, and styling.
+  </Card>
+  
+  <Card title="Contribute" icon="code-branch" href="/contributing/guide">
+    Add your own documentation and earn GSSoC points!
+  </Card>
+  
+  <Card title="Deploy to Vercel" icon="cloud">
+    ```bash
+    vercel deploy
+    ```
+    One command deployment with zero configuration.
+  </Card>
+  
+  <Card title="Join the Community" icon="users">
+    Open issues, submit PRs, and help shape the future of EasyGoDocs.
+  </Card>
+</CardGroup>
+
+## Troubleshooting
+
+<Accordion title="Port 3000 is already in use">
+  Next.js will automatically use the next available port. Check the terminal output for the actual URL.
+  
+  Or manually specify a port:
+  ```bash
+  pnpm dev -- -p 3001
+  ```
+</Accordion>
+
+<Accordion title="MDX file not appearing">
+  1. Ensure the file is in `src/docs/` with `.mdx` extension
+  2. Check the filename has no spaces (use hyphens)
+  3. Restart the dev server (`Ctrl+C`, then `pnpm dev`)
+  4. Visit `/mdx/[your-filename]` (without the `.mdx` extension)
+</Accordion>
+
+<Accordion title="Syntax highlighting not working">
+  Make sure your code block specifies a language:
+  
+  ````markdown
+  ```javascript  // ✅ Highlighted
+  ```          // ❌ Plain text
+  ````
+</Accordion>
+
+<Accordion title="Table of contents is empty">
+  The TOC is generated from Markdown headings (`#`, `##`, `###`). Ensure you're using standard Markdown syntax, not HTML tags.
+</Accordion>
+
+## Learning Resources
+
+- **Markdown Guide**: [markdownguide.org](https://www.markdownguide.org/)
+- **MDX Documentation**: [mdxjs.com](https://mdxjs.com/)
+- **Next.js App Router**: [nextjs.org/docs](https://nextjs.org/docs)
+- **Tailwind CSS**: [tailwindcss.com/docs](https://tailwindcss.com/docs)
+
+---
+
+<div className="text-center py-8 border-t">
+  <p className="text-muted-foreground mb-4">
+    Need help? Open an issue on GitHub or check out existing discussions.
+  </p>
+  <a href="https://github.com/EasyGoDocs/easygodocs/issues" className="text-primary hover:underline font-medium">
+    View GitHub Issues →
+  </a>
+</div>

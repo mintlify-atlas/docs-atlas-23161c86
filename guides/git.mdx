@@ -1,0 +1,283 @@
+---
+title: Git Guide
+description: Complete guide to version control with Git and GitHub workflows
+---
+
+Git is a distributed version control system that helps you track changes in your code, collaborate with others, and manage project history. It's an essential tool for modern software development.
+
+## Why Use Git?
+
+Git provides powerful capabilities for managing code:
+
+- **Version Control**: Track every change made to your codebase
+- **Collaboration**: Work with teams without conflicts
+- **Branching**: Experiment with features in isolated environments
+- **History**: Review and revert changes when needed
+- **Backup**: Distributed nature means multiple copies of your code
+
+## Getting Started with Git
+
+To use Git effectively, you'll need to install it and configure authentication for remote repositories like GitHub.
+
+<CardGroup cols={2}>
+  <Card
+    title="Install Git on Ubuntu"
+    icon="download"
+    href="/library/install-git-ubuntu"
+  >
+    Install Git and configure your identity for version control
+  </Card>
+  <Card
+    title="Generate SSH Key for GitHub"
+    icon="key"
+    href="/library/generate-ssh-key-github"
+  >
+    Set up SSH authentication to securely connect to GitHub
+  </Card>
+</CardGroup>
+
+## Basic Git Workflow
+
+### Creating a Repository
+
+Start tracking a project with Git:
+
+```bash
+# Initialize a new repository
+git init
+
+# Or clone an existing repository
+git clone git@github.com:username/repository.git
+```
+
+### Making Changes
+
+The standard workflow for making changes:
+
+```bash
+# Check status of your files
+git status
+
+# Add files to staging area
+git add filename.txt
+# Or add all changes
+git add .
+
+# Commit changes with a message
+git commit -m "Add new feature"
+
+# Push to remote repository
+git push origin main
+```
+
+### Viewing History
+
+Review your project's history:
+
+```bash
+# View commit history
+git log
+
+# View condensed history
+git log --oneline
+
+# View changes in a commit
+git show <commit_hash>
+
+# View changes to files
+git diff
+```
+
+## Branching and Merging
+
+Branches allow you to work on features independently:
+
+```bash
+# Create a new branch
+git branch feature-name
+
+# Switch to the branch
+git checkout feature-name
+# Or create and switch in one command
+git checkout -b feature-name
+
+# List all branches
+git branch
+
+# Merge a branch into current branch
+git merge feature-name
+
+# Delete a branch
+git branch -d feature-name
+```
+
+## Working with Remote Repositories
+
+### Syncing Changes
+
+Keep your local repository in sync with remote:
+
+```bash
+# Fetch changes from remote
+git fetch origin
+
+# Pull changes and merge
+git pull origin main
+
+# Push your changes
+git push origin main
+```
+
+### Managing Remotes
+
+Work with multiple remote repositories:
+
+```bash
+# View remote repositories
+git remote -v
+
+# Add a remote repository
+git remote add upstream git@github.com:original/repository.git
+
+# Remove a remote
+git remote remove upstream
+```
+
+## GitHub Workflows
+
+### SSH Authentication
+
+Using SSH keys provides secure, password-free authentication to GitHub. After generating and adding your SSH key to GitHub, you can:
+
+- Clone repositories using SSH URLs
+- Push and pull without entering passwords
+- Securely authenticate with GitHub
+
+### Pull Requests
+
+Collaborate with teams using pull requests:
+
+1. Create a feature branch
+2. Make and commit your changes
+3. Push the branch to GitHub
+4. Open a pull request on GitHub
+5. Review and discuss changes
+6. Merge when approved
+
+## Best Practices
+
+### Commit Messages
+
+- Write clear, descriptive commit messages
+- Use present tense ("Add feature" not "Added feature")
+- Keep the first line under 50 characters
+- Add detailed description if needed
+
+### Branching Strategy
+
+- Keep `main` branch stable and deployable
+- Create feature branches for new work
+- Use descriptive branch names (e.g., `feature/user-authentication`)
+- Delete branches after merging
+
+### Regular Commits
+
+- Commit logical units of work
+- Commit early and often
+- Don't commit sensitive information (passwords, API keys)
+- Use `.gitignore` to exclude unnecessary files
+
+## Common Operations
+
+### Undoing Changes
+
+```bash
+# Discard changes in working directory
+git checkout -- filename.txt
+
+# Unstage a file
+git reset HEAD filename.txt
+
+# Undo last commit (keep changes)
+git reset --soft HEAD~1
+
+# Undo last commit (discard changes)
+git reset --hard HEAD~1
+```
+
+### Stashing Changes
+
+```bash
+# Save changes temporarily
+git stash
+
+# List stashed changes
+git stash list
+
+# Apply stashed changes
+git stash apply
+
+# Apply and remove from stash
+git stash pop
+```
+
+### Tagging Releases
+
+```bash
+# Create a tag
+git tag v1.0.0
+
+# Create annotated tag
+git tag -a v1.0.0 -m "Release version 1.0.0"
+
+# Push tags to remote
+git push --tags
+```
+
+## Troubleshooting
+
+### Merge Conflicts
+
+When Git can't automatically merge changes:
+
+1. Git marks conflicted files
+2. Open files and resolve conflicts manually
+3. Remove conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`)
+4. Stage resolved files with `git add`
+5. Complete merge with `git commit`
+
+### Reset vs Revert
+
+- `git reset`: Moves branch pointer (rewrites history)
+- `git revert`: Creates new commit that undoes changes (preserves history)
+
+Use `revert` for public branches, `reset` for local changes.
+
+## Next Steps
+
+Once you're comfortable with Git basics, explore:
+
+- Advanced branching strategies (Git Flow, GitHub Flow)
+- Rebasing for cleaner history
+- Git hooks for automation
+- Submodules for managing dependencies
+- Git LFS for large files
+
+## Related Resources
+
+<CardGroup cols={2}>
+  <Card
+    title="Docker Guide"
+    icon="docker"
+    href="/guides/docker"
+  >
+    Version control your Dockerfiles and container configurations
+  </Card>
+  <Card
+    title="Node.js Guide"
+    icon="node"
+    href="/guides/nodejs"
+  >
+    Manage Node.js project dependencies and configurations with Git
+  </Card>
+</CardGroup>
