@@ -1,0 +1,108 @@
+{
+  "projectType": "saas",
+  "projectName": "EasyGoDocs",
+  "projectDescription": "A modern documentation platform that simplifies technical documentation for developers",
+  "theme": "palm",
+  "primaryColor": "#6366f1",
+  "lightColor": "#818cf8",
+  "darkColor": "#4f46e5",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "features"
+            ]
+          },
+          {
+            "group": "Core Concepts",
+            "pages": [
+              "concepts/json-structure",
+              "concepts/tsx-templates",
+              "concepts/navigation"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/docker",
+              "guides/git",
+              "guides/nodejs",
+              "guides/system-tools"
+            ]
+          },
+          {
+            "group": "Contributing",
+            "pages": [
+              "contributing/guide",
+              "contributing/code-of-conduct"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Documentation Library",
+        "groups": [
+          {
+            "group": "Development Tools",
+            "pages": [
+              "library/install-git-ubuntu",
+              "library/install-nodejs-apt",
+              "library/install-nodejs-nvm",
+              "library/install-docker-ubuntu",
+              "library/install-docker-compose"
+            ]
+          },
+          {
+            "group": "System Tools",
+            "pages": [
+              "library/install-zsh",
+              "library/install-oh-my-zsh",
+              "library/install-tmux",
+              "library/install-htop",
+              "library/install-ncdu",
+              "library/check-disk-space",
+              "library/find-ip-address",
+              "library/kill-process-port",
+              "library/ubuntu-package-update"
+            ]
+          },
+          {
+            "group": "Frameworks & Libraries",
+            "pages": [
+              "library/react"
+            ]
+          },
+          {
+            "group": "Utilities",
+            "pages": [
+              "library/generate-ssh-key-github",
+              "library/chrome-download"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Simple JSON + TSX workflow for documentation",
+    "Template-driven docs with React components",
+    "Structured navigation with sidebar and TOC",
+    "Hot reload and instant preview",
+    "Community-driven contribution system",
+    "Comprehensive guide library for developers"
+  ],
+  "publicApiSurface": [
+    "JSON documentation structure",
+    "TSX template system",
+    "Documentation components",
+    "Sidebar navigation API",
+    "Table of contents generation",
+    "MDX content rendering"
+  ]
+}
